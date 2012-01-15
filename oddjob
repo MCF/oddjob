@@ -1,4 +1,7 @@
 #!/usr/bin/ruby
+#
+# Copyright (c) 2010-2012 Mike Fellows
+#
 
 MYVERSION = "1.0"
 
