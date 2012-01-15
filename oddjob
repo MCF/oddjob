@@ -1,0 +1,213 @@
+#!/usr/bin/ruby
+
+MYVERSION = "1.0"
+
+require 'webrick'
+
+def runServer(args, options_parser)
+
+  server = WEBrick::HTTPServer.new(:Port => args[:port], :DocumentRoot => args[:directorytoserve])
+
+  server.mount("/info", Info, options_parser.to_s)
+  server.mount("/upload", FileUpload, args[:simulatednetworkdelay], args[:outputdirectory])
+
+  ['TERM', 'INT'].each {|s| trap(s){server.shutdown} }
+
+  server.start
+end
+
+class Info < WEBrick::HTTPServlet::AbstractServlet
+
+  def initialize(server, cmd_usage, *options)
+    @cmd_usage = cmd_usage
+    super(server, options)
+  end
+
+  def do_GET(request, response)
+    status, content_type, body = info_response
+    response.status = status
+    response['Content-Type'] = content_type
+    response.body = body
+  end
+
+  def info_response
+    html =  "<html>\n" +
+            "  <body style='font:100% arial,sans-serif'>\n" +
+            "    <h1>#{File.basename($0)}</h1>\n" +
+            "    <p>Version is: <em style='font-weight:bold;'>#{MYVERSION}</em></p>\n" +
+            "    <h2>Program Usage:</h2>\n" +
+            "    <pre>#{@cmd_usage}</pre>\n" +
+            "  </body>\n" +
+            "</html>"
+
+    return 200, "text/html", html
+  end
+end
+
+class FileUpload < WEBrick::HTTPServlet::AbstractServlet
+
+  def initialize(server, delay, save_directory, *options)
+    @simulated_delay = delay
+    @save_directory = save_directory
+    super(server, options)
+  end
+
+  def do_POST(request, response)
+    all_files = Array.new
+    ["file", "file[]"].each do |name|
+      if request.query[name]
+        request.query[name].each_data do |data|
+
+          all_files.push(data.filename)
+
+          # If no save directory was specified just dump information to STDOUT
+          if @save_directory.nil?
+            puts "\n++ File Upload POST request to this server was:\n"
+            puts request
+            puts "++ end File Upload POST request\n\n"
+
+            puts "** Contents of: #{data.filename} ---"
+            puts data.to_s
+            puts "** end contents of: #{data.filename} ---\n\n"
+          else
+            file_name = File.join(@save_directory, data.filename)
+
+            final_name = file_name
+            i = 1
+            while(File.exist?(final_name))
+              final_name = "#{file_name}_#{i}"
+              i += 1
+            end
+
+            File.open(final_name, "w"){|f| f.print(data.to_s)}
+
+            puts "\n#{data.filename} Uploaded to: #{final_name}\n"
+          end
+        end
+      end
+    end
+
+    response.status = 200
+    response['Content-type'] = "text/html"
+    response.body = "<html><body><p>Thanks for the file(s): #{all_files.join(", ")}</p></body></html>"
+    response.body = "<html>\n" +
+                    "  <body style='font:100% arial,sans-serif'>\n" +
+                    "    <p>Thanks for the file(s): #{all_files.join(", ")}</p>\n" +
+                    "    <a href=''>Upload More Files</a>\n" + 
+                    "  </body>\n" + 
+                    "</html>\n"
+
+    sleep(@simulated_delay)  # Simulate network delay (to slow file uploads down)
+  end
+
+  def do_GET(request, response)
+    response.status = 200
+    response['Content-type'] = "text/html"
+    response.body = "<html>\n" +
+                    "  <body style='font:100% arial,sans-serif'>\n" +
+                    "    <form action='' method='POST' enctype='multipart/form-data'>\n" + 
+                    "      <p>\n" + 
+                    "        Select file(s) to upload:\n" +
+                    "        <br /><br />\n" +
+                    "        <input type='file' name='file' multiple='true' />\n" +
+                    "        <br /><br />\n" +
+                    "        <input type='submit'>\n" +
+                    "      </p>\n" + 
+                    "    </form>\n" + 
+                    "  </body>\n" + 
+                    "</html>\n"
+  end
+end
+
+
+if __FILE__ == $0
+
+  require 'optparse'
+
+  options = {
+    :directorytoserve =>      ".",
+    :outputdirectory =>       nil,
+    :simulatednetworkdelay => 0,
+    :port =>                  2345
+  }
+
+  optparser = OptionParser.new do |o|
+    o.banner =  "Usage: #{File.basename($0)} [OPTIONS} [directory_to_serve]"
+    o.separator <<EOF
+
+Where directory_to_serve is the name of the directory that will be served up
+as the web server's root directory.  If no directory is given a default of
+the current working directory will be used.
+
+If an output directory is given the uploaded files are saved under their own
+names in the output directory.  Any pre-existing files are not ovewritten,
+instead a number is added to the end of the file name of any newer duplicate
+files.
+
+If an output directory is not specified then uploaded files will not be saved,
+instead the contents of the HTTP POST, and the contents of any uploaded files,
+will be printed to STDOUT.
+
+If a simulated network delay is specified then the server will pause that many
+seconds before sending a response for any file uploaded to the standard
+file upload URL "/upload"
+
+There is also an informational page (that includes this usage message)
+located at the URL "/info"
+
+The default port is #{options[:port]}.
+
+EOF
+
+    o.on('-d', '--delay=value', Float,
+         'Simulated network delay in seconds')   {|options[:simulatednetworkdelay]|}
+    o.on('-o', '--output=value', String,
+         'Directory to hold any uploaded files') {|options[:outputdirectory]|}
+    o.on('-p', '--port=value', Integer,
+         'Port that web server should listen on')   {|options[:port]|}
+
+    o.separator("")
+
+    o.on('-h', '--help', 'Display this message') { puts(o); exit }
+  end
+
+  theRest = []
+  begin
+    theRest =  optparser.parse(ARGV)
+  rescue
+    STDERR.puts("ERROR: #{$!.to_s}")
+    STDERR.puts(" try the -h option for the command usage")
+    exit
+  end
+
+  if(theRest.size > 1)
+    STDERR.puts("ERORR: too many arguments given")
+    STDERR.puts(" try the -h option for the command usage")
+    exit 1
+  end
+
+  options[:directorytoserve] = theRest.pop if theRest.size == 1
+  unless File.directory?(options[:directorytoserve])
+    STDERR.puts("ERROR: directory to serve does not exist or is not a directory: #{options[:directorytoserve]}")
+    exit 1
+  end
+
+  if options[:outputdirectory]
+    unless File.directory?(options[:outputdirectory])
+      STDERR.puts("ERROR: output directory does not exist or is not a directory: #{options[:outputdirectory]}")
+      exit 1
+    end
+  end
+
+  if options[:port] < 0 or options[:port] > 65535
+    STDERR.puts("ERROR: port specified is invalid: #{options[:port]}")
+    exit 1
+  end
+
+  if options[:simulatednetworkdelay] < 0
+    STDERR.puts("ERROR: simulated delay cannot be negative: #{options[:simulatednetworkdelay]}")
+    exit 1
+  end
+
+  runServer(options, optparser)
+end
