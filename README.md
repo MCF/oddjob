@@ -10,6 +10,8 @@ It is fairly easy to hack the oddjob script to build quick test jigs for web dev
 
 Run oddjob with the *-h* or *--help* options to see a full description of the command usage.  oddjob also serves a short information page at the */info* URL that includes the command usage.
 
+To shut the server down use the normal interrupt key combination (usually Ctrl-C or Cmd-C).
+
 ## Examples ##
 
     oddjob
