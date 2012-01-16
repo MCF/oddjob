@@ -26,9 +26,9 @@ oddjob is written in ruby and its only required dependency is a standard ruby in
 
 ## Security ##
 
-oddjob serves to any client and does **not** limit connections to localhost.  If you are not behind a firewall this could present a serious security problem as anyone who can connect to your IP address can also browse the content served by oddjob.
+By default oddjob will serve to any client on any IP address and does **not** limit connections to localhost.  If you are not behind a firewall this could present a serious security problem as anyone who can connect to your IP address can also browse the content served by oddjob.  You can limit the connections to localhost (127.0.0.1) by using the *-l* command line option.
 
-It will serve the contents of the directory specified on the command line, or the current working directory if no directory is specified.  It does no filtering on the contents of the directory served, and the entire directory tree is available.
+oddjob will serve the contents of the directory specified on the command line, or the current working directory if no directory is specified.  It does no filtering on the contents of the directory served, and the entire directory tree is available for browsing.
 
 oddjob will bind to port 2345 by default.  A different port can be specified with the *-p* option.
 

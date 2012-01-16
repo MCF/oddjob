@@ -9,7 +9,9 @@ require 'webrick'
 
 def runServer(args, options_parser)
 
-  server = WEBrick::HTTPServer.new(:Port => args[:port], :DocumentRoot => args[:directorytoserve])
+  server = WEBrick::HTTPServer.new(:Port =>         args[:port],
+                                   :BindAddress =>  args[:ipaddress],
+                                   :DocumentRoot => args[:directorytoserve])
 
   server.mount("/info", Info, options_parser.to_s)
   server.mount("/upload", FileUpload, args[:simulatednetworkdelay], args[:outputdirectory])
@@ -130,6 +132,7 @@ if __FILE__ == $0
   options = {
     :directorytoserve =>      ".",
     :outputdirectory =>       nil,
+    :ipaddress =>             '*',
     :simulatednetworkdelay => 0,
     :port =>                  2345
   }
@@ -158,12 +161,15 @@ file upload URL "/upload"
 There is also an informational page (that includes this usage message)
 located at the URL "/info"
 
-The default port is #{options[:port]}.
+The default port is #{options[:port]}, and the default is for the server to
+serve content on all of the available IP addresses on this host.
 
 EOF
 
     o.on('-d', '--delay=value', Float,
          'Simulated network delay in seconds')   {|options[:simulatednetworkdelay]|}
+    o.on('-l', '--localhost',
+         'Only allow connections on 127.0.0.1') {|l| options[:ipaddress] = '127.0.0.1'}
     o.on('-o', '--output=value', String,
          'Directory to hold any uploaded files') {|options[:outputdirectory]|}
     o.on('-p', '--port=value', Integer,
