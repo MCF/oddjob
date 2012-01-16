@@ -58,6 +58,15 @@ class FileUpload < WEBrick::HTTPServlet::AbstractServlet
   end
 
   def do_POST(request, response)
+
+    # If there is no save directory, then the file upload request and contents
+    # will be displayed on STDOUT.
+    if @save_directory.nil?
+      puts "\n++ File Upload POST request to this server was:\n"
+      puts request
+      puts "++ end File Upload POST request\n\n"
+    end
+
     all_files = Array.new
     ["file", "file[]"].each do |name|
       if request.query[name]
@@ -65,12 +74,8 @@ class FileUpload < WEBrick::HTTPServlet::AbstractServlet
 
           all_files.push(data.filename)
 
-          # If no save directory was specified just dump information to STDOUT
+          # No save directory, then dump each file's contents.
           if @save_directory.nil?
-            puts "\n++ File Upload POST request to this server was:\n"
-            puts request
-            puts "++ end File Upload POST request\n\n"
-
             puts "** Contents of: #{data.filename} ---"
             puts data.to_s
             puts "** end contents of: #{data.filename} ---\n\n"
