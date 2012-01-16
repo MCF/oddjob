@@ -3,7 +3,7 @@
 # Copyright (c) 2010-2012 Mike Fellows
 #
 
-MYVERSION = "1.0"
+MYVERSION = "1.0.1"
 
 require 'webrick'
 
@@ -191,7 +191,7 @@ EOF
   rescue
     STDERR.puts("ERROR: #{$!.to_s}")
     STDERR.puts(" try the -h option for the command usage")
-    exit
+    exit 1
   end
 
   if(theRest.size > 1)
