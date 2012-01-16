@@ -3,9 +3,14 @@
 # Copyright (c) 2010-2012 Mike Fellows
 #
 
-MYVERSION = "1.0.1"
+MYVERSION = "1.0.2"
 
 require 'webrick'
+
+def show_version()
+  STDOUT.puts("Version: #{MYVERSION}")
+  exit 0
+end
 
 def runServer(args, options_parser)
 
@@ -179,6 +184,8 @@ EOF
          'Directory to hold any uploaded files') {|options[:outputdirectory]|}
     o.on('-p', '--port=value', Integer,
          'Port that web server should listen on')   {|options[:port]|}
+    o.on('--version',
+         'Display the version number and exit')   {|v| show_version()}
 
     o.separator("")
 
