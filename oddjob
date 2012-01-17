@@ -14,9 +14,15 @@ end
 
 def runServer(args, options_parser)
 
-  server = WEBrick::HTTPServer.new(:Port =>         args[:port],
-                                   :BindAddress =>  args[:ipaddress],
-                                   :DocumentRoot => args[:directorytoserve])
+  # Add missing MIME types (http://bugs.ruby-lang.org/issues/5365)
+  mime_types = WEBrick::HTTPUtils::DefaultMimeTypes
+  mime_types["js"]  = "application/javascript"
+  mime_types["svg"] = "image/svg+xml"
+
+  server = WEBrick::HTTPServer.new(:Port          =>  args[:port],
+                                   :BindAddress   =>  args[:ipaddress],
+                                   :MimeTypes     =>  mime_types,
+                                   :DocumentRoot  =>  args[:directorytoserve])
 
   server.mount("/info", Info, options_parser.to_s)
   server.mount("/upload", FileUpload, args[:simulatednetworkdelay], args[:outputdirectory])
