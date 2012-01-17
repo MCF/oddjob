@@ -110,7 +110,6 @@ class FileUpload < WEBrick::HTTPServlet::AbstractServlet
 
     response.status = 200
     response['Content-type'] = "text/html"
-    response.body = "<html><body><p>Thanks for the file(s): #{all_files.join(", ")}</p></body></html>"
     response.body = "<html>\n" +
                     "  <body style='font:100% arial,sans-serif'>\n" +
                     "    <p>Thanks for the file(s): #{all_files.join(", ")}</p>\n" +
