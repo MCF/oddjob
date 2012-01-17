@@ -50,7 +50,7 @@ class Info < WEBrick::HTTPServlet::AbstractServlet
     html =  "<html>\n" +
             "  <body style='font:100% arial,sans-serif'>\n" +
             "    <h1>#{File.basename($0)}</h1>\n" +
-            "    <p>Version is: <em style='font-weight:bold;'>#{MYVERSION}</em></p>\n" +
+            "    <p>Version: <em style='font-weight:bold;'>#{MYVERSION}</em></p>\n" +
             "    <h2>Program Usage:</h2>\n" +
             "    <pre>#{@cmd_usage}</pre>\n" +
             "  </body>\n" +
