@@ -3,7 +3,7 @@
 # Copyright (c) 2010-2012 Mike Fellows
 #
 
-MYVERSION = "1.0.3"
+MYVERSION = "1.0.4"
 
 require 'webrick'
 
@@ -24,8 +24,9 @@ def runServer(args, options_parser)
                                    :MimeTypes     =>  mime_types,
                                    :DocumentRoot  =>  args[:directorytoserve])
 
-  server.mount("/info", Info, options_parser.to_s)
-  server.mount("/upload", FileUpload, args[:simulatednetworkdelay], args[:outputdirectory])
+  server.mount("/oddjob_info", Info, options_parser.to_s)
+  server.mount("/oddjob_upload", FileUpload,
+                args[:simulatednetworkdelay], args[:outputdirectory])
 
   ['TERM', 'INT'].each {|s| trap(s){server.shutdown} }
 

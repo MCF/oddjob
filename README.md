@@ -2,13 +2,13 @@
 
 oddjob is a small lightweight webserver built for development and testing purposes.  It can be used to serve static content to make webpage development easier.  This is especially useful now that many modern browsers have limits on loading and displaying files directly from your file system.
 
-oddjob also has basic file upload capabilities built in.  You can POST directly to the */upload* URL and oddjob will accept the uploaded files.  By default oddjob simply prints out the entire upload POST request and then the contents off each uploaded file.  This is useful for small tests.  But if you need to upload large and/or non-text files you can tell oddjob to save the files to a directory instead.  If you upload the same file twice oddjob will not overwrite existing saved files, instead a number is added to the end of the uploaded file's name to make it unique before saving.
+oddjob also has basic file upload capabilities built in.  You can POST directly to the */oddjob_upload* URL and oddjob will accept the uploaded files.  By default oddjob simply prints out the entire upload POST request and then the contents off each uploaded file.  This is useful for small tests.  But if you need to upload large and/or non-text files you can tell oddjob to save the files to a directory instead.  If you upload the same file twice oddjob will not overwrite existing saved files, instead a number is added to the end of the uploaded file's name to make it unique before saving.
 
 It is fairly easy to hack the oddjob script to build quick test jigs for web development.  Sometimes using a simple test webserver is easier than working with a full fledged development or production environment.
 
 ## Usage ##
 
-Run oddjob with the *-h* or *--help* options to see a full description of the command usage.  oddjob also serves a short information page at the */info* URL that includes the command usage.
+Run oddjob with the *-h* or *--help* options to see a full description of the command usage.  oddjob also serves a short information page at the */oddjob_info* URL that includes the command usage.
 
 To shut the server down use the normal interrupt key combination (usually Ctrl-C or Cmd-C).
 
@@ -16,11 +16,11 @@ To shut the server down use the normal interrupt key combination (usually Ctrl-C
 
     oddjob
 
-Serves the contents of the current working directory at *http://localhost:2345/* and file upload is available at *http://localhost:2345/upload*
+Serves the contents of the current working directory at *http://localhost:2345/* and file upload is available at *http://localhost:2345/oddjob_upload*
 
     oddjob -p 2222 -o ./uploaded_files ./myproject
 
-Serves the contents of the *./myproject* directory at *http://localhost:2222/*, file upload is available at *http://localhost:2222/upload* and any uploaded files are saved in the *./uploaded_files* directory.
+Serves the contents of the *./myproject* directory at *http://localhost:2222/*, file upload is available at *http://localhost:2222/oddjob_upload* and any uploaded files are saved in the *./uploaded_files* directory.
 
 ## Environment ##
 
