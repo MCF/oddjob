@@ -178,10 +178,10 @@ will be printed to STDOUT.
 
 If a simulated network delay is specified then the server will pause that many
 seconds before sending a response for any file uploaded to the standard
-file upload URL "/upload"
+file upload URL "/oddjob_upload"
 
 There is also an informational page (that includes this usage message)
-located at the URL "/info"
+located at the URL "/oddjob_info"
 
 The default port is #{options[:port]}, and the default is for the server to
 serve content on all of the available IP addresses on this host.
