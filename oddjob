@@ -7,11 +7,6 @@ MYVERSION = "1.0.4"
 
 require 'webrick'
 
-def show_version()
-  STDOUT.puts("Version: #{MYVERSION}")
-  exit 0
-end
-
 def runServer(args, options_parser)
 
   # Add missing MIME types (http://bugs.ruby-lang.org/issues/5365)
@@ -143,6 +138,17 @@ end
 
 if __FILE__ == $0
 
+  def show_version()
+    STDOUT.puts("Version: #{MYVERSION}")
+    exit
+  end
+
+  def show_error(msg, suggest_usage=false)
+    STDERR.puts("ERORR: #{msg}")
+    STDERR.puts(" try the -h option for the command usage") if suggest_usage
+    exit 1
+  end
+
   require 'optparse'
 
   options = {
@@ -202,38 +208,27 @@ EOF
   begin
     theRest =  optparser.parse(ARGV)
   rescue
-    STDERR.puts("ERROR: #{$!.to_s}")
-    STDERR.puts(" try the -h option for the command usage")
-    exit 1
+    show_error($!.to_s, true)
   end
 
-  if(theRest.size > 1)
-    STDERR.puts("ERORR: too many arguments given")
-    STDERR.puts(" try the -h option for the command usage")
-    exit 1
-  end
+  show_error("too many arguments given", true) if(theRest.size > 1)
 
   options[:directorytoserve] = theRest.pop if theRest.size == 1
+
   unless File.directory?(options[:directorytoserve])
-    STDERR.puts("ERROR: directory to serve does not exist or is not a directory: #{options[:directorytoserve]}")
-    exit 1
+    show_error("directory to serve does not exist or is not a directory: #{options[:directorytoserve]}")
   end
 
-  if options[:outputdirectory]
-    unless File.directory?(options[:outputdirectory])
-      STDERR.puts("ERROR: output directory does not exist or is not a directory: #{options[:outputdirectory]}")
-      exit 1
-    end
+  if options[:outputdirectory] and not File.directory?(options[:outputdirectory])
+    show_error("output directory does not exist or is not a directory: #{options[:outputdirectory]}")
   end
 
   if options[:port] < 0 or options[:port] > 65535
-    STDERR.puts("ERROR: port specified is invalid: #{options[:port]}")
-    exit 1
+    show_error("port specified is invalid: #{options[:port]}")
   end
 
   if options[:simulatednetworkdelay] < 0
-    STDERR.puts("ERROR: simulated delay cannot be negative: #{options[:simulatednetworkdelay]}")
-    exit 1
+    show_error("simulated delay cannot be negative: #{options[:simulatednetworkdelay]}")
   end
 
   runServer(options, optparser)
