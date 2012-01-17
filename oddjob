@@ -15,7 +15,7 @@ end
 def runServer(args, options_parser)
 
   # Add missing MIME types (http://bugs.ruby-lang.org/issues/5365)
-  mime_types = WEBrick::HTTPUtils::DefaultMimeTypes
+  mime_types = WEBrick::HTTPUtils::DefaultMimeTypes.dup
   mime_types["js"]  = "application/javascript"
   mime_types["svg"] = "image/svg+xml"
 
