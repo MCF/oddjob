@@ -189,19 +189,19 @@ serve content on all of the available IP addresses on this host.
 EOF
 
     o.on('-d', '--delay=value', Float,
-         'Simulated network delay in seconds')   {|options[:simulatednetworkdelay]|}
+         'Simulated network delay in seconds')    {|x| options[:simulatednetworkdelay] = x}
     o.on('-l', '--localhost',
-         'Only allow connections on 127.0.0.1') {|l| options[:ipaddress] = '127.0.0.1'}
+         'Only allow connections on 127.0.0.1')   {options[:ipaddress] = '127.0.0.1'}
     o.on('-o', '--output=value', String,
-         'Directory to hold any uploaded files') {|options[:outputdirectory]|}
+         'Directory to hold any uploaded files')  {|x| options[:outputdirectory] = x}
     o.on('-p', '--port=value', Integer,
-         'Port that web server should listen on')   {|options[:port]|}
+         'Port that web server should listen on') {|x| options[:port] = x}
     o.on('--version',
-         'Display the version number and exit')   {|v| show_version()}
+         'Display the version number and exit')   {show_version()}
 
     o.separator("")
 
-    o.on('-h', '--help', 'Display this message') { puts(o); exit }
+    o.on('-h', '--help', 'Display this message') {puts(o); exit}
   end
 
   theRest = []

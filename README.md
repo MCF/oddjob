@@ -24,7 +24,7 @@ Serves the contents of the *./myproject* directory at *http://localhost:2222/*, 
 
 ## Environment ##
 
-oddjob is written in ruby and its only required dependency is a standard ruby install.  No extra gems are required, oddjob makes use of the built in ruby webserver library [webrick](http://www.ruby-doc.org/stdlib-1.9.3/libdoc/webrick/rdoc/).  oddjob has been tested with ruby 1.8.7.
+oddjob is written in ruby and its only required dependency is a standard ruby install.  No extra gems are required, oddjob makes use of the built in ruby webserver library [webrick](http://www.ruby-doc.org/stdlib-1.9.3/libdoc/webrick/rdoc/).  oddjob has been tested with ruby 1.8.7 and ruby 1.9.2.
 
 ## Security ##
 
