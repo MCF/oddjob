@@ -3,7 +3,7 @@
 # Copyright (c) 2010-2012 Mike Fellows
 #
 
-MYVERSION = "1.0.4"
+MYVERSION = "1.1.0"
 
 require 'webrick'
 
