@@ -7,21 +7,21 @@ MYVERSION = "1.1.0"
 
 require 'webrick'
 
-def runServer(args, options_parser)
+def runServer(options, options_parser)
 
   # Add missing MIME types (http://bugs.ruby-lang.org/issues/5365)
   mime_types = WEBrick::HTTPUtils::DefaultMimeTypes.dup
   mime_types["js"]  = "application/javascript"
   mime_types["svg"] = "image/svg+xml"
 
-  server = WEBrick::HTTPServer.new(:Port          =>  args[:port],
-                                   :BindAddress   =>  args[:ipaddress],
+  server = WEBrick::HTTPServer.new(:Port          =>  options[:port],
+                                   :BindAddress   =>  options[:ipaddress],
                                    :MimeTypes     =>  mime_types,
-                                   :DocumentRoot  =>  args[:directorytoserve])
+                                   :DocumentRoot  =>  options[:directorytoserve])
 
   server.mount("/oddjob_info", Info, options_parser.to_s)
   server.mount("/oddjob_upload", FileUpload,
-                args[:simulatednetworkdelay], args[:outputdirectory])
+                options[:simulatednetworkdelay], options[:outputdirectory])
 
   ['TERM', 'INT'].each {|s| trap(s){server.shutdown} }
 
@@ -151,7 +151,7 @@ if __FILE__ == $0
 
   require 'optparse'
 
-  options = {
+  opts = {
     :directorytoserve =>      ".",
     :outputdirectory =>       nil,
     :ipaddress =>             '*',
@@ -183,19 +183,19 @@ file upload URL "/oddjob_upload"
 There is also an informational page (that includes this usage message)
 located at the URL "/oddjob_info"
 
-The default port is #{options[:port]}, and the default is for the server to
+The default port is #{opts[:port]}, and the default is for the server to
 serve content on all of the available IP addresses on this host.
 
 EOF
 
     o.on('-d', '--delay=value', Float,
-         'Simulated network delay in seconds')    {|x| options[:simulatednetworkdelay] = x}
+         'Simulated network delay in seconds')    {|x| opts[:simulatednetworkdelay] = x}
     o.on('-l', '--localhost',
-         'Only allow connections on 127.0.0.1')   {options[:ipaddress] = '127.0.0.1'}
+         'Only allow connections on 127.0.0.1')   {opts[:ipaddress] = '127.0.0.1'}
     o.on('-o', '--output=value', String,
-         'Directory to hold any uploaded files')  {|x| options[:outputdirectory] = x}
+         'Directory to hold any uploaded files')  {|x| opts[:outputdirectory] = x}
     o.on('-p', '--port=value', Integer,
-         'Port that web server should listen on') {|x| options[:port] = x}
+         'Port that web server should listen on') {|x| opts[:port] = x}
     o.on('--version',
          'Display the version number and exit')   {show_version()}
 
@@ -213,23 +213,23 @@ EOF
 
   show_error("too many arguments given", true) if(theRest.size > 1)
 
-  options[:directorytoserve] = theRest.pop if theRest.size == 1
+  opts[:directorytoserve] = theRest.pop if theRest.size == 1
 
-  unless File.directory?(options[:directorytoserve])
-    show_error("directory to serve does not exist or is not a directory: #{options[:directorytoserve]}")
+  unless File.directory?(opts[:directorytoserve])
+    show_error("directory to serve does not exist or is not a directory: #{opts[:directorytoserve]}")
   end
 
-  if options[:outputdirectory] and not File.directory?(options[:outputdirectory])
-    show_error("output directory does not exist or is not a directory: #{options[:outputdirectory]}")
+  if opts[:outputdirectory] and not File.directory?(opts[:outputdirectory])
+    show_error("output directory does not exist or is not a directory: #{opts[:outputdirectory]}")
   end
 
-  if options[:port] < 0 or options[:port] > 65535
-    show_error("port specified is invalid: #{options[:port]}")
+  if opts[:port] < 0 or opts[:port] > 65535
+    show_error("port specified is invalid: #{opts[:port]}")
   end
 
-  if options[:simulatednetworkdelay] < 0
-    show_error("simulated delay cannot be negative: #{options[:simulatednetworkdelay]}")
+  if opts[:simulatednetworkdelay] < 0
+    show_error("simulated delay cannot be negative: #{opts[:simulatednetworkdelay]}")
   end
 
-  runServer(options, optparser)
+  runServer(opts, optparser)
 end
