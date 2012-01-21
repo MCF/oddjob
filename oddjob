@@ -7,7 +7,7 @@ MYVERSION = "1.1.0"
 
 require 'webrick'
 
-def runServer(options, options_parser)
+def run_server(options)
 
   # Add missing MIME types (http://bugs.ruby-lang.org/issues/5365)
   mime_types = WEBrick::HTTPUtils::DefaultMimeTypes.dup
@@ -19,7 +19,7 @@ def runServer(options, options_parser)
                                    :MimeTypes     =>  mime_types,
                                    :DocumentRoot  =>  options[:directorytoserve])
 
-  server.mount("/oddjob_info", Info, options_parser.to_s)
+  server.mount("/oddjob_info", Info, options[:usagemessage])
   server.mount("/oddjob_upload", FileUpload,
                 options[:simulatednetworkdelay], options[:outputdirectory])
 
@@ -46,10 +46,14 @@ class Info < WEBrick::HTTPServlet::AbstractServlet
     html =  "<html>\n" +
             "  <body style='font:100% arial,sans-serif'>\n" +
             "    <h1>#{File.basename($0)}</h1>\n" +
-            "    <p>Version: <em style='font-weight:bold;'>#{MYVERSION}</em></p>\n" +
-            "    <h2>Program Usage:</h2>\n" +
-            "    <pre>#{@cmd_usage}</pre>\n" +
-            "  </body>\n" +
+            "    <p>Version: <em style='font-weight:bold;'>#{MYVERSION}</em></p>\n"
+
+    unless @cmd_usage.nil?
+      html << "    <h2>Program Usage:</h2>\n" +
+              "    <pre>#{@cmd_usage}</pre>\n"
+    end
+
+    html << "  </body>\n" +
             "</html>"
 
     return 200, "text/html", html
@@ -154,6 +158,7 @@ if __FILE__ == $0
   opts = {
     :directorytoserve =>      ".",
     :outputdirectory =>       nil,
+    :usagemessage =>           nil,
     :ipaddress =>             '*',
     :simulatednetworkdelay => 0,
     :port =>                  2345
@@ -231,5 +236,7 @@ EOF
     show_error("simulated delay cannot be negative: #{opts[:simulatednetworkdelay]}")
   end
 
-  runServer(opts, optparser)
+  opts[:usagemessage] = optparser.to_s
+
+  run_server(opts)
 end
