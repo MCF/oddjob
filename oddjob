@@ -238,5 +238,10 @@ EOF
 
   opts[:usagemessage] = optparser.to_s
 
-  run_server(opts)
+  begin
+    run_server(opts)
+  rescue Errno::EADDRINUSE => e
+    show_error("Could not bind to the given port and address, often this happens when \n" + 
+               "some other process is already using the selected port: #{opts[:port]}")
+  end
 end
