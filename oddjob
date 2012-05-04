@@ -165,7 +165,7 @@ if __FILE__ == $0
   }
 
   optparser = OptionParser.new do |o|
-    o.banner =  "Usage: #{File.basename($0)} [OPTIONS} [directory_to_serve]"
+    o.banner =  "Usage: #{File.basename($0)} [OPTIONS] [directory_to_serve]"
     o.separator <<EOF
 
 Where directory_to_serve is the name of the directory that will be served up
@@ -216,7 +216,7 @@ EOF
     show_error($!.to_s, true)
   end
 
-  show_error("too many arguments given", true) if(theRest.size > 1)
+  show_error("too many arguments given", true) if theRest.size > 1
 
   opts[:directorytoserve] = theRest.pop if theRest.size == 1
 
