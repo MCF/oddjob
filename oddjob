@@ -158,8 +158,8 @@ if __FILE__ == $0
   opts = {
     :directorytoserve =>      ".",
     :outputdirectory =>       nil,
-    :usagemessage =>           nil,
-    :ipaddress =>             '*',
+    :usagemessage =>          nil,
+    :ipaddress =>             "127.0.0.1",
     :simulatednetworkdelay => 0,
     :port =>                  2345
   }
@@ -189,14 +189,16 @@ There is also an informational page (that includes this usage message)
 located at the URL "/oddjob_info"
 
 The default port is #{opts[:port]}, and the default is for the server to
-serve content on all of the available IP addresses on this host.
+serve content only on localhost.  If you need to connect to your oddjob server
+from another host then use the -a option, but be aware of the security
+considerations of allowing any host to connect to your server.
 
 EOF
 
     o.on('-d', '--delay=value', Float,
          'Simulated network delay in seconds')    {|x| opts[:simulatednetworkdelay] = x}
-    o.on('-l', '--localhost',
-         'Only allow connections on 127.0.0.1')   {opts[:ipaddress] = '127.0.0.1'}
+    o.on('-a', '--allhosts',
+         'Allow connections from all hosts')      {opts[:ipaddress] = '0.0.0.0'}
     o.on('-o', '--output=value', String,
          'Directory to hold any uploaded files')  {|x| opts[:outputdirectory] = x}
     o.on('-p', '--port=value', Integer,
