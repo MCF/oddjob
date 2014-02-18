@@ -1,9 +1,9 @@
 # oddjob #
 
 oddjob is a small, lightweight webserver built for development and testing
-purposes. It can be used to serve static content to make webpage development
-easier. This is especially useful now that many modern browsers have limits on
-loading and displaying files directly from your file system.
+purposes. It can serve static content to make local static page development
+easier. It was created when web browsers stopped allowing the loading of pages
+from your local file system by default. 
 
 oddjob also has basic file upload capabilities built in. You can POST directly
 to the */oddjob_upload* URL and oddjob will accept the uploaded files. By
@@ -46,7 +46,7 @@ uploaded files are saved in the *./uploaded_files* directory.
 oddjob is written in ruby and its only required dependency is a standard ruby
 install. No extra gems are required, oddjob makes use of the built in ruby
 webserver library [webrick](http://www.ruby-doc.org/stdlib-1.9.3/libdoc/webrick/rdoc/).
-oddjob has been tested with ruby 1.8.7 and ruby 1.9.2.
+oddjob has been tested with ruby 1.8.7 and up.
 
 ## Security ##
 
