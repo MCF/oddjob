@@ -36,11 +36,12 @@ class Info < WEBrick::HTTPServlet::AbstractServlet
   end
 
   def do_GET(request, response)
-    status, content_type, body = info_response
-    response.status = status
-    response['Content-Type'] = content_type
-    response.body = body
+    response.status = 200
+    response['Content-Type'] = "text/html"
+    response.body = info_response
   end
+
+  private
 
   def info_response
     html =  "<html>\n" +
@@ -56,7 +57,7 @@ class Info < WEBrick::HTTPServlet::AbstractServlet
     html << "  </body>\n" +
             "</html>"
 
-    return 200, "text/html", html
+    html
   end
 end
 
@@ -85,7 +86,7 @@ class FileUpload < WEBrick::HTTPServlet::AbstractServlet
 
           all_files.push(data.filename)
 
-          # No save directory, then dump each file's contents.
+          # No save directory? Then dump each file's contents.
           if @save_directory.nil?
             puts "** Contents of: #{data.filename} ---"
             puts data.to_s
@@ -110,32 +111,42 @@ class FileUpload < WEBrick::HTTPServlet::AbstractServlet
 
     response.status = 200
     response['Content-type'] = "text/html"
-    response.body = "<html>\n" +
-                    "  <body style='font:100% arial,sans-serif'>\n" +
-                    "    <p>Thanks for the file(s): #{all_files.join(", ")}</p>\n" +
-                    "    <a href=''>Upload More Files</a>\n" + 
-                    "  </body>\n" + 
-                    "</html>\n"
+    response.body = uploaded_response(all_files)
 
-    sleep(@simulated_delay)  # Simulate network delay (to slow file uploads down)
+    sleep(@simulated_delay)
   end
 
   def do_GET(request, response)
     response.status = 200
     response['Content-type'] = "text/html"
-    response.body = "<html>\n" +
-                    "  <body style='font:100% arial,sans-serif'>\n" +
-                    "    <form action='' method='POST' enctype='multipart/form-data'>\n" + 
-                    "      <p>\n" + 
-                    "        Select file(s) to upload:\n" +
-                    "        <br /><br />\n" +
-                    "        <input type='file' name='file' multiple='true' />\n" +
-                    "        <br /><br />\n" +
-                    "        <input type='submit'>\n" +
-                    "      </p>\n" + 
-                    "    </form>\n" + 
-                    "  </body>\n" + 
-                    "</html>\n"
+    response.body = upload_response
+  end
+
+  private
+
+  def upload_response
+    "<html>\n" +
+    "  <body style='font:100% arial,sans-serif'>\n" +
+    "    <form action='' method='POST' enctype='multipart/form-data'>\n" + 
+    "      <p>\n" + 
+    "        Select file(s) to upload:\n" +
+    "        <br /><br />\n" +
+    "        <input type='file' name='file' multiple='true' />\n" +
+    "        <br /><br />\n" +
+    "        <input type='submit'>\n" +
+    "      </p>\n" + 
+    "    </form>\n" + 
+    "  </body>\n" + 
+    "</html>\n"
+  end
+
+  def uploaded_response(names)
+    "<html>\n" +
+    "  <body style='font:100% arial,sans-serif'>\n" +
+    "    <p>File#{(names.size > 1 ? "s" : "")}: #{names.join(", ")}</p>\n" +
+    "    <a href=''>Upload More Files</a>\n" + 
+    "  </body>\n" + 
+    "</html>\n"
   end
 end
 
