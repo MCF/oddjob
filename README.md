@@ -50,16 +50,16 @@ oddjob has been tested with ruby 1.8.7 and up.
 
 ## Security ##
 
-By default oddjob will serve to any client on any IP address and does **not**
-limit connections to localhost. If you are not behind a firewall this could
-present a serious security problem as anyone who can connect to your IP address
-can also browse the content served by oddjob. You can limit the connections to
-localhost (127.0.0.1) by using the *-l* command line option.
+By default oddjob will only serve to clients on localhost.  The *-a* option
+will allow connections from any hosts. If you are not behind a firewall the
+*-a* option could present a security problem as anyone who can connect to your
+IP address can also browse the content served by oddjob, so consider yourself
+warned.
 
 oddjob will serve the contents of the directory specified on the command line,
 or the current working directory if no directory is specified. It does no
 filtering on the contents of the directory served, and the entire directory
-tree is available for browsing.
+tree below the top level directory is available for browsing.
 
 oddjob will bind to port 2345 by default. A different port can be specified
 with the *-p* option.
