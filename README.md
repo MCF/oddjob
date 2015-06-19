@@ -31,15 +31,16 @@ Ctrl-C or Cmd-C).
 
     oddjob
 
-Serves the contents of the current working directory at
-*http://localhost:2345/* and file upload is available at
+Serves the files and directories in your current working directory at the
+*http://localhost:2345/* URL.  File upload is available at
 *http://localhost:2345/oddjob_upload*
 
     oddjob -p 2222 -o ./uploaded_files ./myproject
 
-Serves the contents of the *./myproject* directory at *http://localhost:2222/*,
-file upload is available at *http://localhost:2222/oddjob_upload* and any
-uploaded files are saved in the *./uploaded_files* directory.
+Serves the contents of the *./myproject* directory at the
+*http://localhost:2222/* URL, file upload is available at
+*http://localhost:2222/oddjob_upload* and any uploaded files are saved in the
+*./uploaded_files* directory.
 
 ## Environment ##
 
@@ -50,11 +51,12 @@ oddjob has been tested with ruby 1.8.7 and up.
 
 ## Security ##
 
-By default oddjob will only serve to clients on localhost.  The *-a* option
-will allow connections from any hosts. If you are not behind a firewall the
-*-a* option could present a security problem as anyone who can connect to your
-IP address can also browse the content served by oddjob, so consider yourself
-warned.
+By default oddjob will only serve to clients on localhost (i.e. only clients,
+browsers, etc. running on the same computer as oddjob).  The *-a* option will
+allow connections from any hosts. If you do not trust the users on your local
+network the *-a* option could present a security problem as anyone who can
+connect to your IP address can also browse the files served by oddjob, so
+consider yourself warned.
 
 oddjob will serve the contents of the directory specified on the command line,
 or the current working directory if no directory is specified. It does no
