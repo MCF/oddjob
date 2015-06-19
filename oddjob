@@ -11,17 +11,28 @@ def run_server(options)
 
   # Add missing MIME types (http://bugs.ruby-lang.org/issues/5365)
   mime_types = WEBrick::HTTPUtils::DefaultMimeTypes.dup
-  mime_types["js"]  = "application/javascript"  unless mime_types.has_key?("js")
-  mime_types["svg"] = "image/svg+xml"           unless mime_types.has_key?("svg")
+  mime_types["js"]  = "application/javascript" unless mime_types.has_key?("js")
+  mime_types["svg"] = "image/svg+xml"          unless mime_types.has_key?("svg")
 
-  server = WEBrick::HTTPServer.new(:Port          =>  options[:port],
-                                   :BindAddress   =>  options[:ipaddress],
-                                   :MimeTypes     =>  mime_types,
-                                   :DocumentRoot  =>  options[:directorytoserve])
+  server = WEBrick::HTTPServer.new(
+    :Port          =>  options[:port],
+    :BindAddress   =>  options[:ipaddress],
+    :MimeTypes     =>  mime_types,
+    :DocumentRoot  =>  options[:directorytoserve]   # Root directory.
+  )
 
-  server.mount("/oddjob_info", Info, options[:usagemessage])
-  server.mount("/oddjob_upload", FileUpload,
-                options[:simulatednetworkdelay], options[:outputdirectory])
+  server.mount(
+    "/oddjob_info",
+    Info,
+    options[:usagemessage]
+  )
+
+  server.mount(
+    "/oddjob_upload",
+    FileUpload,
+    options[:simulatednetworkdelay],
+    options[:outputdirectory]
+  )
 
   ['TERM', 'INT'].each {|s| trap(s){server.shutdown} }
 
@@ -56,8 +67,6 @@ class Info < WEBrick::HTTPServlet::AbstractServlet
 
     html << "  </body>\n" +
             "</html>"
-
-    html
   end
 end
 
@@ -86,24 +95,16 @@ class FileUpload < WEBrick::HTTPServlet::AbstractServlet
 
           all_files.push(data.filename)
 
-          # No save directory? Then dump each file's contents.
+          # No save directory? Then print out each file's contents.
           if @save_directory.nil?
             puts "** Contents of: #{data.filename} ---"
             puts data.to_s
             puts "** end contents of: #{data.filename} ---\n\n"
           else
-            file_name = File.join(@save_directory, data.filename)
+            output_name = unique_file(data.filename, @save_directory)
+            File.open(output_name, "w"){|f| f.print(data.to_s)}
 
-            final_name = file_name
-            i = 1
-            while(File.exist?(final_name))
-              final_name = "#{file_name}_#{i}"
-              i += 1
-            end
-
-            File.open(final_name, "w"){|f| f.print(data.to_s)}
-
-            puts "\n#{data.filename} Uploaded to: #{final_name}\n"
+            puts "\n#{data.filename} Uploaded to: #{output_name}\n"
           end
         end
       end
@@ -120,6 +121,21 @@ class FileUpload < WEBrick::HTTPServlet::AbstractServlet
     response.status = 200
     response['Content-type'] = "text/html"
     response.body = upload_response
+  end
+
+  protected
+
+  def unique_file(desired_name, save_directory)
+    full_name = File.join(save_directory, desired_name)
+
+    final_name = full_name
+    i = 1
+    while(File.exist?(final_name))
+      final_name = "#{full_name}_#{i}"
+      i += 1
+    end
+
+    final_name
   end
 
   private
