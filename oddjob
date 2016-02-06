@@ -225,30 +225,30 @@ if __FILE__ == $0
     o.banner =  "Usage: #{File.basename($0)} [OPTIONS] [directory_to_serve]"
     o.separator <<TXT
 
-Where directory_to_serve is the name of the directory that will be served up
-as the web server's root directory.  If no directory is given a default of
-the current working directory will be used.
+Where directory_to_serve is the name of the directory that will be served up as
+the web server's root directory.  If no directory is given a default of the
+current working directory will be used.
 
 If an output directory is given the uploaded files are saved under their own
-names in the output directory.  Any pre-existing files are not ovewritten,
+names in the output directory.  Any pre-existing files are not overwritten,
 instead a number is added to the end of the file name of any newer duplicate
 files.
 
 If an output directory is not specified then uploaded files will not be saved,
 instead the contents of the HTTP POST, and the contents of any uploaded files,
-will be printed to STDOUT.
+will be printed to the server's STDOUT.
 
 If a simulated network delay is specified then the server will pause that many
-seconds before sending a response for any file uploaded to the standard
-file upload URL "/oddjob_upload"
+seconds before sending a response for any file uploaded to the standard file
+upload URL "/oddjob_upload"
 
-There is also an informational page (that includes this usage message)
-located at the URL "/oddjob_info"
+There is also an informational page (that includes this usage message) located
+at the URL "/oddjob_info"
 
-The default port is #{opts[:port]}, and the default is for the server to
-serve content only on localhost.  If you need to connect to your oddjob server
-from another host then use the -a option, but be aware of the security
-considerations of allowing any host to connect to your server.
+The default port is #{opts[:port]}, and the default is for the server to serve
+content only on localhost.  If you need to connect to your oddjob server from
+another host then use the -a option, but be aware of the security implications
+of allowing any other host to connect to your server.
 
 TXT
 
