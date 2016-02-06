@@ -40,7 +40,28 @@ module OddJob
     s.start
   end
 
+  module HtmlWrapper
+
+    def page(content, title)
+      [
+        "<!DOCTYPE html>",
+        "<head>",
+        "  <title>OJ #{title}</title>",
+        "  <style>",
+        "  body {font:100% arial,sans-serif; margin:4em 5em}",
+        "  </style>",
+        "</head>",
+        "<html><body>",
+        content,
+        "</body></html>",
+      ].join("\n")
+    end
+
+  end
+
   class Info < WEBrick::HTTPServlet::AbstractServlet
+
+    include HtmlWrapper
 
     def initialize(server, cmd_usage, *options)
       @usage = cmd_usage
@@ -57,22 +78,17 @@ module OddJob
 
     def info_page
       html = [
-        "<html>",
-        "<body style='font:100% arial,sans-serif; margin:4em 5em'>",
         "  <h1>#{File.basename($0)}</h1>",
         "  <p>Version: <strong>#{MYVERSION}</strong></p>"
       ]
       html << "  <pre>#{@usage}</pre>" unless @usage.nil?
-      html += [
-        "</body>",
-        "</html>"
-      ]
-
-      html.join("\n")
+      page(html.join("\n"), "Info")
     end
   end
 
   class FileUpload < WEBrick::HTTPServlet::AbstractServlet
+
+    include HtmlWrapper
 
     def initialize(server, delay, save_directory, *options)
       @simulated_delay = delay
@@ -149,36 +165,32 @@ module OddJob
     private
 
     def uploader_page
-      [
-        "<html>",
-        "<body style='font:100% arial,sans-serif; margin:4em 5em'>",
-        "  <h1>Uploader</h1>",
-        "  <form action='' method='POST' enctype='multipart/form-data'>",
-        "    <p>",
-        "      Select file(s) to upload:",
-        "      <br><br>",
-        "      <input type='file' name='file' multiple='true'>",
-        "      <br><br>",
-        "      <input type='submit'>",
-        "    </p>",
-        "  </form>",
-        "</body>",
-        "</html>"
+      html = [
+        "<h1>Uploader</h1>",
+        "<form action='' method='POST' enctype='multipart/form-data'>",
+        "  <p>",
+        "    Select file(s) to upload:",
+        "    <br><br>",
+        "    <input type='file' name='file' multiple='true'>",
+        "    <br><br>",
+        "    <input type='submit'>",
+        "  </p>",
+        "</form>",
       ].join("\n")
+
+      page(html, "Uploader")
     end
 
     def uploaded_page(names)
-      [
-        "<html>",
-        "<body style='font:100% arial,sans-serif; margin:4em 5em'>",
-        "  <h1>Results</h1>",
-        "  <p>Uploaded:",
-        "    <strong>#{names.join("</strong>, <strong>")}</strong>",
-        "  </p>",
-        "  <p><a href=''>Return to upload page</a></p>",
-        "</body>",
-        "</html>"
+      html = [
+        "<h1>Results</h1>",
+        "<p>Uploaded:",
+        "  <strong>#{names.join("</strong>, <strong>")}</strong>",
+        "</p>",
+        "<p><a href=''>Return to upload page</a></p>",
       ].join("\n")
+
+      page(html, "Upload Results")
     end
   end
 
