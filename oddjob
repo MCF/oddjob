@@ -2,11 +2,11 @@
 
 # Copyright (c) 2010-2016 Mike Fellows
 
-MYVERSION = "1.4.0"
-
 require 'webrick'
 
 module OddJob
+
+  VERSION = "1.4.0"
 
   def OddJob.server(options)
 
@@ -79,7 +79,7 @@ module OddJob
     def info_page
       html = [
         "  <h1>#{File.basename($0)}</h1>",
-        "  <p>Version: <strong>#{MYVERSION}</strong></p>"
+        "  <p>Version: <strong>#{VERSION}</strong></p>"
       ]
       html << "  <pre>#{@usage}</pre>" unless @usage.nil?
       page(html.join("\n"), "Info")
@@ -200,7 +200,7 @@ end
 if __FILE__ == $0
 
   def show_version()
-    STDOUT.puts("Version: #{MYVERSION}")
+    STDOUT.puts("Version: #{OddJob::VERSION}")
     exit
   end
 
