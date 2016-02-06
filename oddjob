@@ -102,7 +102,7 @@ class FileUpload < WEBrick::HTTPServlet::AbstractServlet
             puts data.to_s
             puts "** end contents of: #{data.filename} ---\n\n"
           else
-            output_name = unique_file(data.filename, @save_directory)
+            output_name = unique_name(data.filename, @save_directory)
             File.open(output_name, "w"){|f| f.print(data.to_s)}
 
             puts "\n#{data.filename} Uploaded to: #{output_name}\n"
@@ -126,17 +126,23 @@ class FileUpload < WEBrick::HTTPServlet::AbstractServlet
 
   protected
 
-  def unique_file(desired_name, save_directory)
-    full_name = File.join(save_directory, desired_name)
+  # Find a unique name in the same directory for the given file.
+  #
+  # If the desired name is not available it adds an index to the base name of
+  # the file until one is found.  For example if test.txt already existed then
+  # it would try test_1.txt, test_2.txt and so on.
+  def unique_name(desired_name, save_directory)
+    ext = File.extname(desired_name)
+    base = File.basename(desired_name, ext)
 
-    final_name = full_name
+    final_base = full_base = File.join(save_directory, base)
     i = 1
-    while(File.exist?(final_name))
-      final_name = "#{full_name}_#{i}"
+    while(File.exist?(final_base + ext))
+      final_base = "#{full_base}_#{i}"
       i += 1
     end
 
-    final_name
+    final_base + ext
   end
 
   private
