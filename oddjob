@@ -49,6 +49,8 @@ module OddJob
         "  <title>OJ #{title}</title>",
         "  <style>",
         "  body {font:100% arial,sans-serif; margin:4em 5em}",
+        "  a {text-decoration:none; color:rgb(248,143,6)}",
+        "  a:hover {color:rgb(248,179,76);}",
         "  </style>",
         "</head>",
         "<html><body>",
