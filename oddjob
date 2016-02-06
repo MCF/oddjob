@@ -1,9 +1,9 @@
 #!/usr/bin/ruby
 #
-# Copyright (c) 2010-2012 Mike Fellows
+# Copyright (c) 2010-2016 Mike Fellows
 #
 
-MYVERSION = "1.2.1"
+MYVERSION = "1.3.0"
 
 require 'webrick'
 
