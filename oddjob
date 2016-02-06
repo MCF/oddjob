@@ -1,184 +1,187 @@
 #!/usr/bin/ruby
-#
+
 # Copyright (c) 2010-2016 Mike Fellows
-#
 
 MYVERSION = "1.4.0"
 
 require 'webrick'
 
-def run_server(options)
+module OddJob
 
-  # Add missing MIME types (http://bugs.ruby-lang.org/issues/5365)
-  mime_types = WEBrick::HTTPUtils::DefaultMimeTypes.dup
-  mime_types["js"]  = "application/javascript" unless mime_types.has_key?("js")
-  mime_types["svg"] = "image/svg+xml"          unless mime_types.has_key?("svg")
+  def OddJob.server(options)
 
-  server = WEBrick::HTTPServer.new(
-    :Port          =>  options[:port],
-    :BindAddress   =>  options[:ipaddress],
-    :MimeTypes     =>  mime_types,
-    :DocumentRoot  =>  options[:directorytoserve]   # Root directory.
-  )
+    # Add missing MIME types (http://bugs.ruby-lang.org/issues/5365)
+    m_types = WEBrick::HTTPUtils::DefaultMimeTypes.dup
+    m_types["js"]  = "application/javascript" unless m_types.has_key?("js")
+    m_types["svg"] = "image/svg+xml"          unless m_types.has_key?("svg")
 
-  server.mount(
-    "/oddjob_info",
-    Info,
-    options[:usagemessage]
-  )
+    s = WEBrick::HTTPServer.new(
+      :Port          =>  options[:port],
+      :BindAddress   =>  options[:ipaddress],
+      :MimeTypes     =>  m_types,
+      :DocumentRoot  =>  options[:directorytoserve]   # Root directory.
+    )
 
-  server.mount(
-    "/oddjob_upload",
-    FileUpload,
-    options[:simulatednetworkdelay],
-    options[:outputdirectory]
-  )
+    s.mount(
+      "/oddjob_info",
+      Info,
+      options[:usagemessage]
+    )
 
-  ['TERM', 'INT'].each {|s| trap(s){server.shutdown} }
+    s.mount(
+      "/oddjob_upload",
+      FileUpload,
+      options[:simulatednetworkdelay],
+      options[:outputdirectory]
+    )
 
-  server.start
-end
+    ['TERM', 'INT'].each {|signal| trap(signal){s.shutdown} }
 
-class Info < WEBrick::HTTPServlet::AbstractServlet
-
-  def initialize(server, cmd_usage, *options)
-    @usage = cmd_usage
-    super(server, options)
+    s.start
   end
 
-  def do_GET(request, response)
-    response.status = 200
-    response['Content-Type'] = "text/html"
-    response.body = info_page
-  end
+  class Info < WEBrick::HTTPServlet::AbstractServlet
 
-  private
-
-  def info_page
-    html = [
-      "<html>",
-      "<body style='font:100% arial,sans-serif; margin:4em 5em'>",
-      "  <h1>#{File.basename($0)}</h1>",
-      "  <p>Version: <strong>#{MYVERSION}</strong></p>"
-    ]
-    html << "  <pre>#{@usage}</pre>" unless @usage.nil?
-    html += [
-      "</body>",
-      "</html>"
-    ]
-
-    html.join("\n")
-  end
-end
-
-class FileUpload < WEBrick::HTTPServlet::AbstractServlet
-
-  def initialize(server, delay, save_directory, *options)
-    @simulated_delay = delay
-    @save_directory = save_directory
-    super(server, options)
-  end
-
-  def do_POST(request, response)
-
-    # If there is no save directory specified, then the file upload request and
-    # contents will be displayed on the server's stdout.
-    if @save_directory.nil?
-      puts "\n++ File Upload POST request to this server was:\n"
-      puts request
-      puts "++ end File Upload POST request\n\n"
+    def initialize(server, cmd_usage, *options)
+      @usage = cmd_usage
+      super(server, options)
     end
 
-    all_files = Array.new
-    ["file", "file[]"].each do |name|
-      if request.query[name]
-        request.query[name].each_data do |data|
+    def do_GET(request, response)
+      response.status = 200
+      response['Content-Type'] = "text/html"
+      response.body = info_page
+    end
 
-          all_files.push(data.filename)
+    private
 
-          # No save directory? Then print out each file's contents.
-          if @save_directory.nil?
-            puts "** Contents of: #{data.filename} ---"
-            puts data.to_s
-            puts "** end contents of: #{data.filename} ---\n\n"
-          else
-            output_name = unique_name(data.filename, @save_directory)
-            File.open(output_name, "w"){|f| f.print(data.to_s)}
+    def info_page
+      html = [
+        "<html>",
+        "<body style='font:100% arial,sans-serif; margin:4em 5em'>",
+        "  <h1>#{File.basename($0)}</h1>",
+        "  <p>Version: <strong>#{MYVERSION}</strong></p>"
+      ]
+      html << "  <pre>#{@usage}</pre>" unless @usage.nil?
+      html += [
+        "</body>",
+        "</html>"
+      ]
 
-            puts "\n#{data.filename} Uploaded to: #{output_name}\n"
+      html.join("\n")
+    end
+  end
+
+  class FileUpload < WEBrick::HTTPServlet::AbstractServlet
+
+    def initialize(server, delay, save_directory, *options)
+      @simulated_delay = delay
+      @save_directory = save_directory
+      super(server, options)
+    end
+
+    def do_POST(request, response)
+
+      # If there is no save directory specified, then the file upload request
+      # and contents will be displayed on the server's stdout.
+      if @save_directory.nil?
+        puts "\n++ File Upload POST request to this server was:\n"
+        puts request
+        puts "++ end File Upload POST request\n\n"
+      end
+
+      all_files = Array.new
+      ["file", "file[]"].each do |name|
+        if request.query[name]
+          request.query[name].each_data do |data|
+
+            all_files.push(data.filename)
+
+            # No save directory? Then print out each file's contents.
+            if @save_directory.nil?
+              puts "** Contents of: #{data.filename} ---"
+              puts data.to_s
+              puts "** end contents of: #{data.filename} ---\n\n"
+            else
+              output_name = unique_name(data.filename, @save_directory)
+              File.open(output_name, "w"){|f| f.print(data.to_s)}
+
+              puts "\n#{data.filename} Uploaded to: #{output_name}\n"
+            end
           end
         end
       end
+
+      response.status = 200
+      response['Content-type'] = "text/html"
+      response.body = uploaded_page(all_files)
+
+      sleep(@simulated_delay)
     end
 
-    response.status = 200
-    response['Content-type'] = "text/html"
-    response.body = uploaded_page(all_files)
-
-    sleep(@simulated_delay)
-  end
-
-  def do_GET(request, response)
-    response.status = 200
-    response['Content-type'] = "text/html"
-    response.body = uploader_page
-  end
-
-  protected
-
-  # Find a unique name in the same directory for the given file.
-  #
-  # If the desired name is not available it adds an index to the base name of
-  # the file until one is found.  For example if test.txt already existed then
-  # it would try test_1.txt, test_2.txt and so on.
-  def unique_name(desired_name, save_directory)
-    ext = File.extname(desired_name)
-    base = File.basename(desired_name, ext)
-
-    final_base = full_base = File.join(save_directory, base)
-    i = 1
-    while(File.exist?(final_base + ext))
-      final_base = "#{full_base}_#{i}"
-      i += 1
+    def do_GET(request, response)
+      response.status = 200
+      response['Content-type'] = "text/html"
+      response.body = uploader_page
     end
 
-    final_base + ext
+    protected
+
+    # Find a unique name in the same directory for the given file.
+    #
+    # If the desired name is not available it adds an index to the base name of
+    # the file until one is found.  For example if test.txt already existed
+    # then it would try test_1.txt, test_2.txt and so on.
+    def unique_name(desired_name, save_directory)
+      ext = File.extname(desired_name)
+      base = File.basename(desired_name, ext)
+
+      final_base = full_base = File.join(save_directory, base)
+      i = 1
+      while(File.exist?(final_base + ext))
+        final_base = "#{full_base}_#{i}"
+        i += 1
+      end
+
+      final_base + ext
+    end
+
+    private
+
+    def uploader_page
+      [
+        "<html>",
+        "<body style='font:100% arial,sans-serif; margin:4em 5em'>",
+        "  <h1>Uploader</h1>",
+        "  <form action='' method='POST' enctype='multipart/form-data'>",
+        "    <p>",
+        "      Select file(s) to upload:",
+        "      <br><br>",
+        "      <input type='file' name='file' multiple='true'>",
+        "      <br><br>",
+        "      <input type='submit'>",
+        "    </p>",
+        "  </form>",
+        "</body>",
+        "</html>"
+      ].join("\n")
+    end
+
+    def uploaded_page(names)
+      [
+        "<html>",
+        "<body style='font:100% arial,sans-serif; margin:4em 5em'>",
+        "  <h1>Results</h1>",
+        "  <p>Uploaded:",
+        "    <strong>#{names.join("</strong>, <strong>")}</strong>",
+        "  </p>",
+        "  <p><a href=''>Return to upload page</a></p>",
+        "</body>",
+        "</html>"
+      ].join("\n")
+    end
   end
 
-  private
-
-  def uploader_page
-    [
-      "<html>",
-      "<body style='font:100% arial,sans-serif; margin:4em 5em'>",
-      "  <h1>Uploader</h1>",
-      "  <form action='' method='POST' enctype='multipart/form-data'>",
-      "    <p>",
-      "      Select file(s) to upload:",
-      "      <br><br>",
-      "      <input type='file' name='file' multiple='true'>",
-      "      <br><br>",
-      "      <input type='submit'>",
-      "    </p>",
-      "  </form>",
-      "</body>",
-      "</html>"
-    ].join("\n")
-  end
-
-  def uploaded_page(names)
-    [
-      "<html>",
-      "<body style='font:100% arial,sans-serif; margin:4em 5em'>",
-      "  <h1>Results</h1>",
-      "  <p>Uploaded:",
-      "    <strong>#{names.join("</strong>, <strong>")}</strong>",
-      "  </p>",
-      "  <p><a href=''>Return to upload page</a></p>",
-      "</body>",
-      "</html>"
-    ].join("\n")
-  end
 end
 
 
@@ -289,7 +292,7 @@ TXT
   opts[:usagemessage] = optparser.to_s
 
   begin
-    run_server(opts)
+    OddJob.server(opts)
   rescue Errno::EADDRINUSE => e
     error([
       "Could not bind to the given port and address, often this happens when",
