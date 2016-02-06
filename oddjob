@@ -42,31 +42,32 @@ end
 class Info < WEBrick::HTTPServlet::AbstractServlet
 
   def initialize(server, cmd_usage, *options)
-    @cmd_usage = cmd_usage
+    @usage = cmd_usage
     super(server, options)
   end
 
   def do_GET(request, response)
     response.status = 200
     response['Content-Type'] = "text/html"
-    response.body = info_response
+    response.body = info_page
   end
 
   private
 
-  def info_response
-    html =  "<html>\n" +
-            "  <body style='font:100% arial,sans-serif'>\n" +
-            "    <h1>#{File.basename($0)}</h1>\n" +
-            "    <p>Version: <em style='font-weight:bold;'>#{MYVERSION}</em></p>\n"
+  def info_page
+    html = [
+      "<html>",
+      "<body style='font:100% arial,sans-serif; margin:4em 5em'>",
+      "  <h1>#{File.basename($0)}</h1>",
+      "  <p>Version: <strong>#{MYVERSION}</strong></p>"
+    ]
+    html << "  <pre>#{@usage}</pre>" unless @usage.nil?
+    html += [
+      "</body>",
+      "</html>"
+    ]
 
-    unless @cmd_usage.nil?
-      html << "    <h2>Program Usage:</h2>\n" +
-              "    <pre>#{@cmd_usage}</pre>\n"
-    end
-
-    html << "  </body>\n" +
-            "</html>"
+    html.join("\n")
   end
 end
 
@@ -80,8 +81,8 @@ class FileUpload < WEBrick::HTTPServlet::AbstractServlet
 
   def do_POST(request, response)
 
-    # If there is no save directory, then the file upload request and contents
-    # will be displayed on STDOUT.
+    # If there is no save directory specified, then the file upload request and
+    # contents will be displayed on the server's stdout.
     if @save_directory.nil?
       puts "\n++ File Upload POST request to this server was:\n"
       puts request
@@ -112,7 +113,7 @@ class FileUpload < WEBrick::HTTPServlet::AbstractServlet
 
     response.status = 200
     response['Content-type'] = "text/html"
-    response.body = uploaded_response(all_files)
+    response.body = uploaded_page(all_files)
 
     sleep(@simulated_delay)
   end
@@ -120,7 +121,7 @@ class FileUpload < WEBrick::HTTPServlet::AbstractServlet
   def do_GET(request, response)
     response.status = 200
     response['Content-type'] = "text/html"
-    response.body = upload_response
+    response.body = uploader_page
   end
 
   protected
@@ -140,29 +141,37 @@ class FileUpload < WEBrick::HTTPServlet::AbstractServlet
 
   private
 
-  def upload_response
-    "<html>\n" +
-    "  <body style='font:100% arial,sans-serif'>\n" +
-    "    <form action='' method='POST' enctype='multipart/form-data'>\n" + 
-    "      <p>\n" + 
-    "        Select file(s) to upload:\n" +
-    "        <br /><br />\n" +
-    "        <input type='file' name='file' multiple='true' />\n" +
-    "        <br /><br />\n" +
-    "        <input type='submit'>\n" +
-    "      </p>\n" + 
-    "    </form>\n" + 
-    "  </body>\n" + 
-    "</html>\n"
+  def uploader_page
+    [
+      "<html>",
+      "<body style='font:100% arial,sans-serif; margin:4em 5em'>",
+      "  <h1>Uploader</h1>",
+      "  <form action='' method='POST' enctype='multipart/form-data'>",
+      "    <p>",
+      "      Select file(s) to upload:",
+      "      <br><br>",
+      "      <input type='file' name='file' multiple='true'>",
+      "      <br><br>",
+      "      <input type='submit'>",
+      "    </p>",
+      "  </form>",
+      "</body>",
+      "</html>"
+    ].join("\n")
   end
 
-  def uploaded_response(names)
-    "<html>\n" +
-    "  <body style='font:100% arial,sans-serif'>\n" +
-    "    <p>File#{(names.size > 1 ? "s" : "")}: #{names.join(", ")}</p>\n" +
-    "    <a href=''>Upload More Files</a>\n" + 
-    "  </body>\n" + 
-    "</html>\n"
+  def uploaded_page(names)
+    [
+      "<html>",
+      "<body style='font:100% arial,sans-serif; margin:4em 5em'>",
+      "  <h1>Results</h1>",
+      "  <p>Uploaded:",
+      "    <strong>#{names.join("</strong>, <strong>")}</strong>",
+      "  </p>",
+      "  <p><a href=''>Return to upload page</a></p>",
+      "</body>",
+      "</html>"
+    ].join("\n")
   end
 end
 
@@ -174,7 +183,7 @@ if __FILE__ == $0
     exit
   end
 
-  def show_error(msg, suggest_usage=false)
+  def error(msg, suggest_usage=false)
     STDERR.puts("ERORR: #{msg}")
     STDERR.puts(" try the -h option for the command usage") if suggest_usage
     exit 1
@@ -193,7 +202,7 @@ if __FILE__ == $0
 
   optparser = OptionParser.new do |o|
     o.banner =  "Usage: #{File.basename($0)} [OPTIONS] [directory_to_serve]"
-    o.separator <<EOF
+    o.separator <<TXT
 
 Where directory_to_serve is the name of the directory that will be served up
 as the web server's root directory.  If no directory is given a default of
@@ -220,7 +229,7 @@ serve content only on localhost.  If you need to connect to your oddjob server
 from another host then use the -a option, but be aware of the security
 considerations of allowing any host to connect to your server.
 
-EOF
+TXT
 
     o.on('-d', '--delay=value', Float,
          'Simulated network delay in seconds')    {|x| opts[:simulatednetworkdelay] = x}
@@ -242,27 +251,33 @@ EOF
   begin
     theRest =  optparser.parse(ARGV)
   rescue
-    show_error($!.to_s, true)
+    error($!.to_s, true)
   end
 
-  show_error("too many arguments given", true) if theRest.size > 1
+  error("too many arguments given", true) if theRest.size > 1
 
   opts[:directorytoserve] = theRest.pop if theRest.size == 1
 
   unless File.directory?(opts[:directorytoserve])
-    show_error("directory to serve does not exist or is not a directory: #{opts[:directorytoserve]}")
+    error([
+      "directory to serve does not exist or is not ",
+      "a directory: #{opts[:directorytoserve]}"
+    ].join(''))
   end
 
   if opts[:outputdirectory] and not File.directory?(opts[:outputdirectory])
-    show_error("output directory does not exist or is not a directory: #{opts[:outputdirectory]}")
+    error([
+      "output directory does not exist or is not ",
+      "a directory: #{opts[:outputdirectory]}"
+    ].join(''))
   end
 
   if opts[:port] < 0 or opts[:port] > 65535
-    show_error("port specified is invalid: #{opts[:port]}")
+    error("port specified is invalid: #{opts[:port]}")
   end
 
   if opts[:simulatednetworkdelay] < 0
-    show_error("simulated delay cannot be negative: #{opts[:simulatednetworkdelay]}")
+    error("simulated delay cannot be negative: #{opts[:simulatednetworkdelay]}")
   end
 
   opts[:usagemessage] = optparser.to_s
@@ -270,7 +285,9 @@ EOF
   begin
     run_server(opts)
   rescue Errno::EADDRINUSE => e
-    show_error("Could not bind to the given port and address, often this happens when \n" + 
-               "some other process is already using the selected port: #{opts[:port]}")
+    error([
+      "Could not bind to the given port and address, often this happens when",
+      "some other process is already using the selected port: #{opts[:port]}"
+    ].join("\n"))
   end
 end
