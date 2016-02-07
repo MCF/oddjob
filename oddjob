@@ -9,6 +9,7 @@ module OddJob
   VERSION = '1.5.0'
   UPLOAD_PATH = '/oj_upload'
   INFO_PATH = '/oj_info'
+  DEFAULT_PORT = 4400
 
   def OddJob.server(opts)
     defaults = {
@@ -17,7 +18,7 @@ module OddJob
       :usagemessage   => nil,
       :allowall       => false,
       :networkdelay   => 0,
-      :port           => 4400
+      :port           => DEFAULT_PORT
     }
 
     options = defaults.merge(opts)
@@ -47,7 +48,7 @@ module OddJob
       options[:savedirectory]
     )
 
-    ['TERM', 'INT'].each {|signal| trap(signal){s.shutdown} }
+    ['TERM', 'INT'].each { |signal| trap(signal){ s.shutdown } }
 
     s.start
   end
@@ -224,46 +225,44 @@ if __FILE__ == $0
   opts = {}
 
   optparser = OptionParser.new do |o|
-    o.banner =  "Usage: #{File.basename($0)} [OPTIONS] [directory_to_serve]"
+    o.banner =  "Usage: #{File.basename($0)} [OPTIONS] [server_root]"
     o.separator <<TXT
 
-Where directory_to_serve is the name of the directory that will be served up as
-the web server's root directory.  If no directory is given a default of the
-current working directory will be used.
+Where the optional server_root is to be served as the server's root directory.
+The default server root is the current working directory.
 
-If an output directory is given the uploaded files are saved under their own
-names in the output directory.  Any pre-existing files are not overwritten,
-instead a number is added to the end of the file name of any newer duplicate
-files.
+The default file upload behaviour is to print the contents of the HTTP POST,
+and the contents of any uploaded files, will to the server's STDOUT.  It is
+recommended that you only upload text files in this case.
 
-If an output directory is not specified then uploaded files will not be saved,
-instead the contents of the HTTP POST, and the contents of any uploaded files,
-will be printed to the server's STDOUT.
+If an output directory is specified all uploaded files are saved under their
+own names in this directory.  Pre-existing files are not overwritten, instead a
+number is added to the end of the new files names when saving.
 
-If a simulated network delay is specified then the server will pause that many
-seconds before sending a response for any file uploaded to the standard file
-upload URL #{OddJob::UPLOAD_PATH}
+If a simulated network delay is specified the server will pause that many
+seconds before returning a response for file(s) uploaded to the file upload
+path: #{OddJob::UPLOAD_PATH}.
 
-There is also an informational page (that includes this usage message) located
-at the URL #{OddJob::INFO_PATH}
+The server will only respond to clients on localhost unless the --allhosts
+option is specified.  Be aware of the security implications of allowing any
+other host on your network to connect to the server if you use this option.
 
-The default port is #{opts[:port]}, and the default is for the server to serve
-content only on localhost.  If you need to connect to your oddjob server from
-another host then use the -a option, but be aware of the security implications
-of allowing any other host to connect to your server.
+An informational page is available at the #{OddJob::INFO_PATH} path.
+
+The default server port is #{OddJob::DEFAULT_PORT}.
 
 TXT
 
     o.on('-d', '--delay=value', Float,
-         'File upload simulated network delay')   {|x| opts[:networkdelay] = x}
+         'File upload simulated network delay') { |x| opts[:networkdelay] = x }
     o.on('-a', '--allhosts',
-         'Allow connections from all hosts')      {opts[:allowall] = true}
+         'Allow connections from all hosts')    { opts[:allowall] = true }
     o.on('-o', '--output=value', String,
-         'Directory to hold any uploaded files')  {|x| opts[:savedirectory] = x}
+         'Directory to save uploaded files')    { |x| opts[:savedirectory] = x }
     o.on('-p', '--port=value', Integer,
-         'Port that web server should listen on') {|x| opts[:port] = x}
+         "Web server port to use")              { |x| opts[:port] = x }
     o.on('--version',
-         'Display the version number and exit')   {show_version()}
+         'Display the version number and exit') { show_version() }
 
     o.separator("")
 
