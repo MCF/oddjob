@@ -32,8 +32,8 @@ Ctrl-C or Cmd-C).
     oddjob
 
 Serves the files and directories in your current working directory at the
-*http://localhost:2345/* URL.  File upload is available at
-*http://localhost:2345/oj_upload*
+*http://localhost:4400/* URL.  File upload is available at
+*http://localhost:4400/oj_upload*
 
     oddjob -p 2222 -o ./uploaded_files ./myproject
 
@@ -63,7 +63,7 @@ or the current working directory if no directory is specified. It does no
 filtering on the contents of the directory served, and the entire directory
 tree below the top level directory is available for browsing.
 
-oddjob will bind to port 2345 by default. A different port can be specified
+oddjob will bind to port 4400 by default. A different port can be specified
 with the *-p* option.
 
 ## License ##
