@@ -6,7 +6,7 @@ easier. It was created when web browsers stopped allowing the loading of pages
 from your local file system by default. 
 
 oddjob also has basic file upload capabilities built in. You can POST directly
-to the */oddjob_upload* URL and oddjob will accept the uploaded files. By
+to the */oj_upload* URL and oddjob will accept the uploaded files. By
 default oddjob simply prints out the entire upload POST request and then the
 contents off each uploaded file. This is useful for small tests. But if you
 need to upload large and/or non-text files you can tell oddjob to save the
@@ -22,7 +22,7 @@ with a full fledged development or production environment.
 
 Run oddjob with the *-h* or *--help* options to see a full description of the
 command usage. oddjob also serves a short information page at the
-*/oddjob_info* URL that includes the command usage.
+*/oj_info* URL that includes the command usage.
 
 To shut the server down use the normal interrupt key combination (usually
 Ctrl-C or Cmd-C).
@@ -33,13 +33,13 @@ Ctrl-C or Cmd-C).
 
 Serves the files and directories in your current working directory at the
 *http://localhost:2345/* URL.  File upload is available at
-*http://localhost:2345/oddjob_upload*
+*http://localhost:2345/oj_upload*
 
     oddjob -p 2222 -o ./uploaded_files ./myproject
 
 Serves the contents of the *./myproject* directory at the
 *http://localhost:2222/* URL, file upload is available at
-*http://localhost:2222/oddjob_upload* and any uploaded files are saved in the
+*http://localhost:2222/oj_upload* and any uploaded files are saved in the
 *./uploaded_files* directory.
 
 ## Environment ##
