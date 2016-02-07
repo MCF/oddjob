@@ -17,7 +17,7 @@ module OddJob
       :usagemessage   => nil,
       :allowall       => false,
       :networkdelay   => 0,
-      :port           => 2345
+      :port           => 4400
     }
 
     options = defaults.merge(opts)
