@@ -1,21 +1,21 @@
 #!/usr/bin/env ruby
 
-# Copyright (c) 2010-2016 Mike Fellows
+# Copyright (c) 2010-2016 Mike Fellows (https://github.com/MCF)
 
 require 'webrick'
 
 module OddJob
 
-  VERSION = "1.4.0"
+  VERSION = '1.4.0'
   UPLOAD_PATH = '/oj_upload'
   INFO_PATH = '/oj_info'
 
   def OddJob.server(options)
 
-    # Add missing MIME types (http://bugs.ruby-lang.org/issues/5365)
+    # Add missing MIME types if needed (http://bugs.ruby-lang.org/issues/5365)
     m_types = WEBrick::HTTPUtils::DefaultMimeTypes.dup
-    m_types["js"]  = "application/javascript" unless m_types.has_key?("js")
-    m_types["svg"] = "image/svg+xml"          unless m_types.has_key?("svg")
+    m_types['js']  = 'application/javascript' unless m_types.has_key?('js')
+    m_types['svg'] = 'image/svg+xml'          unless m_types.has_key?('svg')
 
     s = WEBrick::HTTPServer.new(
       :Port          =>  options[:port],
@@ -42,7 +42,6 @@ module OddJob
   end
 
   module HtmlWrapper
-
     def page(content, title)
       [
         "<!DOCTYPE html>",
@@ -59,11 +58,9 @@ module OddJob
         "</body></html>",
       ].join("\n")
     end
-
   end
 
   class Info < WEBrick::HTTPServlet::AbstractServlet
-
     include HtmlWrapper
 
     def initialize(server, cmd_usage, *options)
@@ -77,7 +74,7 @@ module OddJob
       response.body = info_page
     end
 
-    private
+    protected 
 
     def info_page
       html = [
@@ -87,10 +84,10 @@ module OddJob
       html << "  <pre>#{@usage}</pre>" unless @usage.nil?
       page(html.join("\n"), "Info")
     end
+
   end
 
   class FileUpload < WEBrick::HTTPServlet::AbstractServlet
-
     include HtmlWrapper
 
     def initialize(server, delay, save_directory, *options)
@@ -110,7 +107,7 @@ module OddJob
       end
 
       all_files = Array.new
-      ["file", "file[]"].each do |name|
+      ['file', 'file[]'].each do |name|
         if request.query[name]
           request.query[name].each_data do |data|
 
@@ -132,7 +129,7 @@ module OddJob
       end
 
       response.status = 200
-      response['Content-type'] = "text/html"
+      response['Content-type'] = 'text/html'
       response.body = uploaded_page(all_files)
 
       sleep(@simulated_delay)
@@ -140,7 +137,7 @@ module OddJob
 
     def do_GET(request, response)
       response.status = 200
-      response['Content-type'] = "text/html"
+      response['Content-type'] = 'text/html'
       response.body = uploader_page
     end
 
@@ -164,8 +161,6 @@ module OddJob
 
       final_base + ext
     end
-
-    private
 
     def uploader_page
       html = [
