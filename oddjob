@@ -53,7 +53,7 @@ module OddJob
     s.start
   end
 
-  module HtmlWrapper
+  module HtmlRender
     def page(content, title)
       [
         "<!DOCTYPE html>",
@@ -73,7 +73,7 @@ module OddJob
   end
 
   class Info < WEBrick::HTTPServlet::AbstractServlet
-    include HtmlWrapper
+    include HtmlRender
 
     def initialize(server, cmd_usage, *options)
       @usage = cmd_usage
@@ -100,7 +100,7 @@ module OddJob
   end
 
   class FileUpload < WEBrick::HTTPServlet::AbstractServlet
-    include HtmlWrapper
+    include HtmlRender
 
     def initialize(server, delay, save_directory, *options)
       @simulated_delay = delay
