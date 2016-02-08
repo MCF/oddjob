@@ -66,7 +66,7 @@ module OddJob
         "  </style>",
         "</head>",
         "<html><body>",
-        content,
+        content.kind_of?(Array) ? content.join("\n") : content,
         "</body></html>",
       ].join("\n")
     end
@@ -94,7 +94,7 @@ module OddJob
         "  <p>Version: <strong>#{VERSION}</strong></p>"
       ]
       html << "  <pre>#{@usage}</pre>" unless @usage.nil?
-      page(html.join("\n"), "Info")
+      page(html, "Info")
     end
 
   end
@@ -186,7 +186,7 @@ module OddJob
         "    <input type='submit'>",
         "  </p>",
         "</form>",
-      ].join("\n")
+      ]
 
       page(html, "Uploader")
     end
@@ -198,7 +198,7 @@ module OddJob
         "  <strong>#{names.join("</strong>, <strong>")}</strong>",
         "</p>",
         "<p><a href=''>Return to upload page</a></p>",
-      ].join("\n")
+      ]
 
       page(html, "Upload Results")
     end
