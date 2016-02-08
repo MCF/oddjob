@@ -51,11 +51,11 @@ oddjob has been tested with ruby 1.8.7 and up.
 
 ## Security ##
 
-oddjob's default is to only serve to clients on localhost (i.e. only clients,
-browsers, etc. running on the same computer as oddjob).  The *-a* option will
-allow connections from any hosts. If you do not trust the users on your local
-network the *-a* option could be a security concern.  Anyone who could
-connect to your IP address could also browse the files served by oddjob.
+By default oddjob only serves to clients on localhost (that is: browsers
+running on the same computer as oddjob).  The *-a* option will allow
+connections from any hosts. If you do not trust the users on your local network
+the *-a* option could be a security concern.  Anyone who could connect to your
+IP address could also browse the files served by oddjob.
 
 oddjob will serve the contents of the directory specified on the command line,
 or the current working directory if no directory is specified. It does no
