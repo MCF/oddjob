@@ -23,14 +23,13 @@ module OddJob
 
     options = defaults.merge(opts)
 
-    # Add missing MIME types if needed (http://bugs.ruby-lang.org/issues/5365)
+    # Add any missing MIME types (http://bugs.ruby-lang.org/issues/5365)
     m_types = WEBrick::HTTPUtils::DefaultMimeTypes.dup
     m_types['js']  = 'application/javascript' unless m_types.has_key?('js')
     m_types['svg'] = 'image/svg+xml'          unless m_types.has_key?('svg')
 
     s = WEBrick::HTTPServer.new(
       :Port          =>  options[:port],
-      :BindAddress   =>  options[:ipaddress],
       :BindAddress   =>  options[:allowall] ? '0.0.0.0' : '127.0.0.1',
       :MimeTypes     =>  m_types,
       :DocumentRoot  =>  options[:serverroot]
@@ -41,6 +40,7 @@ module OddJob
       Info,
       options[:usagemessage]
     )
+
     s.mount(
       UPLOAD_PATH,
       FileUpload,
