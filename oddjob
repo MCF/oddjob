@@ -6,7 +6,7 @@ require 'webrick'
 
 module OddJob
 
-  VERSION = '1.5.1'
+  VERSION = '1.5.2'
   UPLOAD_PATH = '/oj_upload'
   INFO_PATH = '/oj_info'
   DEFAULT_PORT = 4400
@@ -312,8 +312,14 @@ TXT
     OddJob.server(opts)
   rescue Errno::EADDRINUSE => e
     error([
-      "Could not bind to the given port and address, often this happens when",
-      "some other process is already using the selected port: #{opts[:port]}"
+      "Could not bind to the port because it is already in use, ",
+      "port: #{opts[:port].nil? ? OddJob::DEFAULT_PORT : opts[:port]}"
+    ].join("\n"))
+  rescue Errno::EACCES => e
+    error([
+      "Could not bind to the port due to insufficient permission, usually",
+      "this happens when a non root user attempts to use a privileged port",
+      "(between 1 and 1000).  Port requested: #{opts[:port]}"
     ].join("\n"))
   end
 end
