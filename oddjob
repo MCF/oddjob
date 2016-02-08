@@ -28,29 +28,29 @@ module OddJob
     m_types['js']  = 'application/javascript' unless m_types.has_key?('js')
     m_types['svg'] = 'image/svg+xml'          unless m_types.has_key?('svg')
 
-    s = WEBrick::HTTPServer.new(
+    server = WEBrick::HTTPServer.new(
       :Port          =>  options[:port],
       :BindAddress   =>  options[:allowall] ? '0.0.0.0' : '127.0.0.1',
       :MimeTypes     =>  m_types,
       :DocumentRoot  =>  options[:serverroot]
     )
 
-    s.mount(
+    server.mount(
       INFO_PATH,
       Info,
       options[:usagemessage]
     )
 
-    s.mount(
+    server.mount(
       UPLOAD_PATH,
       FileUpload,
       options[:networkdelay],
       options[:savedirectory]
     )
 
-    ['TERM', 'INT'].each { |signal| trap(signal){ s.shutdown } }
+    ['TERM', 'INT'].each { |signal| trap(signal){ server.shutdown } }
 
-    s.start
+    server.start
   end
 
   module HtmlRender
@@ -91,7 +91,7 @@ module OddJob
       response.body = info_page
     end
 
-    protected 
+    protected
 
     def info_page
       html = [
@@ -115,9 +115,7 @@ module OddJob
 
     def do_POST(request, response)
 
-      # If there is no save directory specified, then the file upload request
-      # and contents will be displayed on the server's stdout.
-      if @save_directory.nil?
+      if @save_directory.nil?   # Request to server STDOUT.
         puts "-- BEGIN File Upload POST Request --"
         puts request
         puts "-- END File Upload POST Request --"
@@ -130,8 +128,7 @@ module OddJob
 
             all_files.push(data.filename)
 
-            # No save directory? Then print out each file's contents.
-            if @save_directory.nil?
+            if @save_directory.nil? # File contents to server STDOUT.
               puts "== BEGIN #{data.filename} Contents =="
               puts data.to_s
               puts "== END #{data.filename} Contents =="
@@ -161,9 +158,10 @@ module OddJob
 
     # Find a unique name in the same directory for the given file.
     #
-    # If the desired name is not available it adds an index to the base name of
-    # the file until one is found.  For example if test.txt already existed
-    # then it would try test_1.txt, test_2.txt and so on.
+    # If the desired name is in usenot add an index to the base name of the
+    # file and increment the index until an unused name is found.  For example
+    # if test.txt already existed then test_1.txt would be checked, followed
+    # by test_2.txt, and so on.
     def unique_name(desired_name, save_directory)
       ext = File.extname(desired_name)
       base = File.basename(desired_name, ext)
@@ -213,12 +211,12 @@ end
 
 if __FILE__ == $0
 
-  def show_version()
+  def show_version
     STDOUT.puts("Version: #{OddJob::VERSION}")
     exit
   end
 
-  def error(msg, suggest_usage=false)
+  def error(msg, suggest_usage = false)
     STDERR.puts("ERORR: #{msg}")
     STDERR.puts(" try the -h option for the command usage") if suggest_usage
     exit 1
@@ -236,12 +234,12 @@ Where the optional server_root is to be served as the server's root directory.
 The default server root is the current working directory.
 
 The default file upload behaviour is to print the contents of the HTTP POST,
-and the contents of any uploaded files, will to the server's STDOUT.  It is
+and the contents of any uploaded files, to the server's STDOUT.  It is
 recommended that you only upload text files in this case.
 
 If an output directory is specified all uploaded files are saved under their
 own names in this directory.  Pre-existing files are not overwritten, instead a
-number is added to the end of the new files names when saving.
+number is added to the end of the new file names when saving.
 
 If a simulated network delay is specified the server will pause that many
 seconds before returning a response for file(s) uploaded to the file upload
