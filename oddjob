@@ -113,9 +113,9 @@ module OddJob
       # If there is no save directory specified, then the file upload request
       # and contents will be displayed on the server's stdout.
       if @save_directory.nil?
-        puts "\n++ File Upload POST request to this server was:\n"
+        puts "-- BEGIN File Upload POST Request --"
         puts request
-        puts "++ end File Upload POST request\n\n"
+        puts "-- END File Upload POST Request --"
       end
 
       all_files = Array.new
@@ -127,14 +127,13 @@ module OddJob
 
             # No save directory? Then print out each file's contents.
             if @save_directory.nil?
-              puts "** Contents of: #{data.filename} ---"
+              puts "== BEGIN #{data.filename} Contents =="
               puts data.to_s
-              puts "** end contents of: #{data.filename} ---\n\n"
+              puts "== END #{data.filename} Contents =="
             else
               output_name = unique_name(data.filename, @save_directory)
               File.open(output_name, "w"){|f| f.print(data.to_s)}
-
-              puts "\n#{data.filename} Uploaded to: #{output_name}\n"
+              puts "#{data.filename} uploaded, saved to #{output_name}"
             end
           end
         end
