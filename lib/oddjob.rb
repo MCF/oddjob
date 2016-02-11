@@ -1,12 +1,10 @@
-#!/usr/bin/env ruby
-
 # Copyright (c) 2010-2016 Mike Fellows (https://github.com/MCF)
 
 require 'webrick'
+require 'oddjob/version'
 
 module OddJob
 
-  VERSION = '1.5.2'
   UPLOAD_PATH = '/oj_upload'
   INFO_PATH = '/oj_info'
   DEFAULT_PORT = 4400
@@ -206,120 +204,4 @@ module OddJob
     end
   end
 
-end
-
-
-if __FILE__ == $0
-
-  def show_version
-    STDOUT.puts("Version: #{OddJob::VERSION}")
-    exit
-  end
-
-  def error(msg, suggest_usage = false)
-    STDERR.puts("ERORR: #{msg}")
-    STDERR.puts(" try the -h option for the command usage") if suggest_usage
-    exit 1
-  end
-
-  require 'optparse'
-
-  opts = {}
-
-  optparser = OptionParser.new do |o|
-    o.banner =  "Usage: #{File.basename($0)} [OPTIONS] [server_root]"
-    o.separator <<TXT
-
-Where the optional server_root is to be served as the server's root directory.
-The default server root is the current working directory.
-
-The default file upload behaviour is to print the contents of the HTTP POST,
-and the contents of any uploaded files, to the server's STDOUT.  It is
-recommended that you only upload text files in this case.
-
-If an output directory is specified all uploaded files are saved under their
-own names in this directory.  Pre-existing files are not overwritten, instead a
-number is added to the end of the new file names when saving.
-
-If a simulated network delay is specified the server will pause that many
-seconds before returning a response for file(s) uploaded to the file upload
-path: #{OddJob::UPLOAD_PATH}.
-
-The server will only respond to clients on localhost unless the --allhosts
-option is specified.  Be aware of the security implications of allowing any
-other host on your network to connect to the server if you use this option.
-
-An informational page is available at the #{OddJob::INFO_PATH} path.
-
-The default server port is #{OddJob::DEFAULT_PORT}.
-
-TXT
-
-    o.on('-d', '--delay=value', Float,
-         'File upload simulated network delay') { |x| opts[:networkdelay] = x }
-    o.on('-a', '--allhosts',
-         'Allow connections from all hosts')    { opts[:allowall] = true }
-    o.on('-o', '--output=value', String,
-         'Directory to save uploaded files')    { |x| opts[:savedirectory] = x }
-    o.on('-p', '--port=value', Integer,
-         "Web server port to use")              { |x| opts[:port] = x }
-    o.on('--version',
-         'Display the version number and exit') { show_version() }
-
-    o.separator("")
-
-    o.on('-h', '--help', 'Display this message') {puts(o); exit}
-  end
-
-  theRest = []
-  begin
-    theRest =  optparser.parse(ARGV)
-  rescue
-    error($!.to_s, true)
-  end
-
-  error("too many arguments given", true) if theRest.size > 1
-
-  if theRest.size == 1
-    opts[:serverroot] = theRest.pop
-
-    unless File.directory?(opts[:serverroot])
-      error([
-        "directory to serve does not exist or is not ",
-        "a directory: #{opts[:serverroot]}"
-      ].join(''))
-    end
-
-    if opts[:savedirectory] and not File.directory?(opts[:savedirectory])
-      error([
-        "output directory does not exist or is not ",
-        "a directory: #{opts[:savedirectory]}"
-      ].join(''))
-    end
-  end
-
-  if opts.has_key?(:port) and (opts[:port] < 0 or opts[:port] > 65535)
-    error("port specified is invalid: #{opts[:port]}")
-  end
-
-  if opts.has_key?(:networkdelay) and opts[:networkdelay] < 0
-    error("simulated delay cannot be negative: #{opts[:networkdelay]}")
-  end
-
-  opts[:usagemessage] = optparser.to_s
-
-  begin
-    OddJob.server(opts)
-  rescue Errno::EADDRINUSE => e
-    error([
-      "Could not bind to the port because it is already in use, ",
-      "port: #{opts[:port].nil? ? OddJob::DEFAULT_PORT : opts[:port]}"
-    ].join("\n"))
-  rescue Errno::EACCES => e
-    error([
-      "Could not bind to the port due to insufficient permission, usually",
-      "this happens when a non root user attempts to use a privileged port",
-      "(between 1 and 1000).  Port requested: #{opts[:port]}"
-    ].join("\n"))
-  end
 end
