@@ -4,3 +4,4 @@
 vendor
 Gemfile.lock
 pkg
+doc
