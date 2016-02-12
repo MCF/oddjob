@@ -67,5 +67,4 @@ with the *-p* option.
 
 ## License ##
 
-oddjob is available for public use and is supplied as is, with no implied
-warranty or fitness for any purpose whatsoever.
+oddjob is released under an [MIT style license](MIT-LICENSE).

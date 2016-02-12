@@ -5,10 +5,10 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'oddjob/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "oddjob"
+  spec.name          = 'oddjob'
   spec.version       = OddJob::VERSION
-  spec.authors       = ["Mike Fellows"]
-  spec.email         = ["Mike.Fellows@shaw.ca"]
+  spec.authors       = ['Mike Fellows']
+  spec.email         = ['Mike.Fellows@shaw.ca']
 
   spec.summary       = 'OddJob is simple command line driver web server'
   spec.description   = <<TXT
@@ -24,14 +24,15 @@ for web developers working with static files.  Or get a copy of the source and
 add in new endpoints for simple tests as needed.
 TXT
 
-  spec.homepage      = "https://github.com/MCF/oddjob"
+  spec.homepage      = 'https://github.com/MCF/oddjob'
+  spec.license       = 'MIT'
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
-  spec.bindir        = "bin"
+  spec.bindir        = 'bin'
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
-  spec.require_paths = ["lib"]
+  spec.require_paths = ['lib']
 
-  spec.add_development_dependency "bundler", "~> 1.10"
-  spec.add_development_dependency "rake", "~> 10.0"
-  spec.add_development_dependency "rspec"
+  spec.add_development_dependency('bundler', '~> 1.10')
+  spec.add_development_dependency('rake', '~> 10.0')
+  spec.add_development_dependency('rspec')
 end
