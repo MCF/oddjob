@@ -56,16 +56,15 @@ optparser = OptionParser.new do |o|
   o.banner =  "Usage: #{File.basename($0)} [OPTIONS] [server_root]"
   o.separator <<TXT
 
-Where the optional server_root is to be served as the server's root directory.
+Where the optional server_root argument will be the server's root directory.
 The default server root is the current working directory.
 
-The default file upload behaviour is to print the contents of the HTTP POST,
-and the contents of any uploaded files, to the server's STDOUT.  It is
-recommended that you only upload text files in this case.
-
-If an output directory is specified all uploaded files are saved under their
-own names in this directory.  Pre-existing files are not overwritten, instead a
-number is added to the end of the new file names when saving.
+The default file upload behaviour will print the contents of the HTTP POST
+request, and the contents of any uploaded files, to the server's STDOUT.  It is
+recommended that you only upload text files in this case.  If an output
+directory is specified all uploaded files are saved under their own names in
+this directory.  Pre-existing files are not overwritten, instead a number is
+added to the end of the new file names when saving.
 
 If a simulated network delay is specified the server will pause that many
 seconds before returning a response for file(s) uploaded to the file upload
@@ -78,6 +77,8 @@ other host on your network to connect to the server if you use this option.
 An informational page is available at the #{OddJob::INFO_PATH} path.
 
 The default server port is #{OddJob::DEFAULT_PORT}.
+
+To stop the server use the normal interrupt key combination (usually Ctrl-C).
 
 TXT
 

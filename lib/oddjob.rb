@@ -29,6 +29,20 @@ module OddJob
   INFO_PATH = '/oj_info'
   DEFAULT_PORT = 4400
 
+  ##
+  # Start the oddjob server.
+  #
+  # +opts+ is a hash.  Allowed keys are:
+  #
+  # * +:serverroot+ - directory to serve (default CWD)
+  # * +:savedirectory+ - where to save uploads (default dump to STDOUT)
+  # * +:usagemessage+ - the command line usage message to dispaly on info page
+  # * +:allowall+ - serve to clients other than on localhost? (default false)
+  # * +:networkdelay+ - simulated network delay (default no delay).
+  # * +:port+ - port to use. (default is in DEFAULT_PORT module constant)
+  #
+  # Runs the server until a TERM or INT signal is received (e.g. ctrl-c from
+  # the command line).
   def OddJob.server(opts)
     defaults = {
       :serverroot     => ".",
@@ -71,7 +85,14 @@ module OddJob
     server.start
   end
 
+  ##
+  # A very basic utility for rendering OddJob specific pages.
+
   module HtmlRender
+
+    ##
+    # Wrap +content+ in the standard page layout.  +title+ is set as the HTML
+    # page's title.
     def page(content, title)
       [
         "<!DOCTYPE html>",
@@ -95,14 +116,23 @@ module OddJob
     end
   end
 
+  ##
+  # Webrick servlet for creating the information page.
+
   class Info < WEBrick::HTTPServlet::AbstractServlet
     include HtmlRender
 
+    ##
+    # Standard servlet initialization function with an additional
+    # +cmd_usage+ argument for specifying the command line usage
+    # of the OddJob module's calling entity.
     def initialize(server, cmd_usage, *options)
       @usage = cmd_usage
       super(server, options)
     end
 
+    ##
+    # Respond to get request, returns informational page.
     def do_GET(request, response)
       response.status = 200
       response['Content-Type'] = "text/html"
@@ -111,6 +141,8 @@ module OddJob
 
     protected
 
+    ##
+    # Render the HTML for the informational page.
     def info_page
       html = [
         "  <h1>#{File.basename($0)}</h1>",
@@ -122,15 +154,33 @@ module OddJob
 
   end
 
+  ##
+  # Webrick servlet for upload pages.
+
   class FileUpload < WEBrick::HTTPServlet::AbstractServlet
     include HtmlRender
 
+    ##
+    # Standard servlet initialization function with additional arguments.
+    # 
+    # +delay+ is the seconds of simulated network delay to wait before
+    # responding after an upload request.
+    #
+    # +save_directory+ is the the directory location to save uploaded files.
+    # If +save_directory+ is set to nil uploaded files are not save, instead
+    # the entire http request is printed on STDOUT, followed by the name and
+    # contents of each file.  Generally only useful for small and non-binary
+    # files.
     def initialize(server, delay, save_directory, *options)
       @simulated_delay = delay
       @save_directory = save_directory
       super(server, options)
     end
 
+    ##
+    # Handles webrick post request when uploading one or more files via a
+    # standard HTML form submission.  The form should include an input of type
+    # 'file'. See the page produced by the do_GET method for an example form.
     def do_POST(request, response)
 
       if @save_directory.nil?   # Request to server STDOUT.
@@ -166,6 +216,9 @@ module OddJob
       sleep(@simulated_delay)
     end
 
+    ##
+    # Serves a simple file upload form.  Uploads submitted are handled by this
+    # class' +do_Post+ method.
     def do_GET(request, response)
       response.status = 200
       response['Content-type'] = 'text/html'
@@ -174,12 +227,13 @@ module OddJob
 
     protected
 
-    # Find a unique name in the same directory for the given file.
+    ##
+    # Finds a unique name in the same directory for the given file.
     #
-    # If the desired name is in usenot add an index to the base name of the
-    # file and increment the index until an unused name is found.  For example
-    # if test.txt already existed then test_1.txt would be checked, followed
-    # by test_2.txt, and so on.
+    # The uploaded file will be renamed if a file by that name already exists.
+    # An index number is added to the file's base name to make it unique.  For
+    # example if test.txt already existed then test_1.txt would be checked,
+    # followed by test_2.txt, and so on.
     def unique_name(desired_name, save_directory)
       ext = File.extname(desired_name)
       base = File.basename(desired_name, ext)
@@ -194,6 +248,8 @@ module OddJob
       final_base + ext
     end
 
+    ##
+    # Returns a string holding the full HTML page with the file upload form.
     def uploader_page
       html = [
         "<h1>Uploader</h1>",
@@ -211,6 +267,11 @@ module OddJob
       page(html, "Uploader")
     end
 
+    ##
+    # Returns a string holding the result of the upload page submission.
+    #
+    # +names+ is an array of the uploaded file names.  These are names
+    # as submitted.  Saved names may be different to avoid overwritting.
     def uploaded_page(names)
       html = [
         "<h1>Results</h1>",

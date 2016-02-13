@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Mike Fellows']
   spec.email         = ['Mike.Fellows@shaw.ca']
 
-  spec.summary       = 'OddJob is simple command line driver web server'
+  spec.summary       = 'OddJob is simple command line driven web server'
   spec.description   = <<TXT
 Oddjob is a simple command line driver web server, written in ruby and
 utilizing ruby's built in web server webrick.  It is meant to be a test and
@@ -32,6 +32,7 @@ TXT
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
   spec.extra_rdoc_files = ['README.md', 'MIT-LICENSE']
+  spec.rdoc_options  = ['--main', 'README.md']
 
   spec.add_development_dependency('bundler', '~> 1.10')
   spec.add_development_dependency('rake', '~> 10.0')
