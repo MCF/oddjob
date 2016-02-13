@@ -1,5 +1,7 @@
 # oddjob #
 
+[![Gem Version](https://badge.fury.io/rb/oddjob.svg)](https://badge.fury.io/rb/oddjob)
+
 oddjob is a lightweight, command line controlled web server.  Built for
 development and testing purposes, it can be used to serve static content for
 local web development and has basic file upload capabilities.  It was initially
