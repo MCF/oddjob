@@ -44,7 +44,7 @@ gem 'oddjob'
 And then execute:
 
 ```sh
-bundle
+bundle install
 ```
 
 You can also run oddjob directly from the git repo.  Clone the git repo and run
