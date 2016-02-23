@@ -115,7 +115,7 @@ Serves the contents of the `./my-site` directory at the
 ## Environment ##
 
 oddjob is written in ruby and its only required dependency is a standard ruby
-install.  oddjob makes use of the built in ruby's
+install.  oddjob makes use of ruby's built in
 [webrick](http://ruby-doc.org/stdlib-2.0.0/libdoc/webrick/rdoc/WEBrick.html)
 web server library.  No gems are required for running oddjob.  oddjob has been
 tested with ruby 1.8.7 and up.
