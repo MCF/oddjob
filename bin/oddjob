@@ -28,14 +28,13 @@ begin
 rescue LoadError
 end
 
-begin
-  require 'oddjob'    # Installed as a gem.
-rescue LoadError
-  lib = File.expand_path('../lib', File.dirname( __FILE__))
+# Prefer the local repo's lib directory.
+lib = File.expand_path('../lib', File.dirname( __FILE__))
+if (File.exists?(File.join(lib, 'oddjob.rb')))
   $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-
-  require 'oddjob'    # Simply run from the repo, no gems.
 end
+
+require 'oddjob'
 
 def show_version
   STDOUT.puts("Version: #{OddJob::VERSION}")
