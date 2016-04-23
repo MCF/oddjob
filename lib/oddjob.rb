@@ -146,7 +146,7 @@ module OddJob
     # Render the HTML for the informational page.
     def info_page
       html = [
-        "  <h1>#{File.basename($0)}</h1>",
+        "  <h2>#{File.basename($0)}</h2>",
         "  <p>Version: <strong>#{VERSION}</strong></p>"
       ]
       html << "  <pre>#{@usage}</pre>" unless @usage.nil?
@@ -253,7 +253,7 @@ module OddJob
     # Returns a string holding the full HTML page with the file upload form.
     def uploader_page
       html = [
-        "<h1>Oddjob File Uploader</h1>",
+        "<h2>Oddjob File Uploader</h2>",
         "<form action='' method='POST' enctype='multipart/form-data'>",
         "    <label for='file'>Select one or more files to upload:</label>",
         "    <br><br>",
@@ -299,7 +299,7 @@ module OddJob
     # as submitted.  Saved names may be different to avoid overwritting.
     def uploaded_page(names)
       html = [
-        "<h1>Results</h1>",
+        "<h2>Results</h2>",
         "<p>Uploaded:",
         "  <strong>#{names.join("</strong>, <strong>")}</strong>",
         "</p>",
