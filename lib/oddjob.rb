@@ -20,6 +20,7 @@
 # DEALINGS IN THE SOFTWARE.
 #++
 
+require 'ostruct'
 require 'webrick'
 require 'oddjob/version'
 
@@ -104,6 +105,7 @@ module OddJob
         "  a:hover {color:rgb(239,131,0);}",
         "  .header {font-size:0.75em; float:right; margin-bottom: 2.0em;}",
         "  .fineprint {font-size:0.85em;}",
+        "  li {margin-bottom:0.4em;}",
         "  </style>",
         "</head>",
         "<html><body>",
@@ -164,7 +166,7 @@ module OddJob
 
     ##
     # Standard servlet initialization function with additional arguments.
-    # 
+    #
     # +delay+ is the seconds of simulated network delay to wait before
     # responding after an upload request.
     #
@@ -191,12 +193,12 @@ module OddJob
         puts "-- END File Upload POST Request --"
       end
 
-      all_files = Array.new
+      all_uploads = Array.new
       ['file', 'file[]'].each do |name|
         if request.query[name]
           request.query[name].each_data do |data|
-
-            all_files.push(data.filename)
+            upload = OpenStruct.new
+            upload.name = data.filename
 
             if @save_directory.nil? # File contents to server STDOUT.
               puts "== BEGIN #{data.filename} Contents =="
@@ -206,14 +208,17 @@ module OddJob
               output_name = unique_name(data.filename, @save_directory)
               File.open(output_name, "w"){|f| f.print(data.to_s)}
               puts "#{data.filename} uploaded, saved to #{output_name}"
+              upload.output_name = File.expand_path(output_name)
             end
+
+            all_uploads.push(upload)
           end
         end
       end
 
       response.status = 200
       response['Content-type'] = 'text/html'
-      response.body = uploaded_page(all_files)
+      response.body = uploaded_page(all_uploads)
 
       sleep(@simulated_delay)
     end
@@ -298,12 +303,24 @@ module OddJob
     #
     # +names+ is an array of the uploaded file names.  These are names
     # as submitted.  Saved names may be different to avoid overwritting.
-    def uploaded_page(names)
+    def uploaded_page(uploads)
       html = [
         "<h2>Results</h2>",
-        "<p>Uploaded:",
-        "  <strong>#{names.join("</strong>, <strong>")}</strong>",
-        "</p>",
+        "<p>Uploaded:</p>",
+        "<ul>",
+      ]
+
+      uploads.each do |upload|
+        html += [
+          "<li>",
+          "<strong>#{upload.name}</strong>",
+          upload.output_name ? " - saved to: #{upload.output_name}" : "",
+          "</li>",
+        ]
+      end
+
+      html += [
+        "</ul>",
         "<p><a href=''>Return to upload page</a></p>",
       ]
 
