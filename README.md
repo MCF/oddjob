@@ -48,7 +48,12 @@ bundle install
 ```
 
 You can also run oddjob directly from the git repo.  Clone the git repo and run
-oddjob directly from the repo's bin directory.
+oddjob directly from the repo's bin directory.  For example:
+
+```sh
+git clone https://github.com/MCF/oddjob.git
+./oddjob/bin/oddjob
+```
 
 ## Usage ##
 
