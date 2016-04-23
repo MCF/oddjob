@@ -247,7 +247,7 @@ module OddJob
 
       final_base = full_base = File.join(save_directory, base)
       i = 1
-      while(File.exist?(final_base + ext))
+      while File.exist?(final_base + ext)
         final_base = "#{full_base}_#{i}"
         i += 1
       end

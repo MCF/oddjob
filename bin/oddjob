@@ -30,7 +30,7 @@ end
 
 # Prefer the local repo's lib directory.
 lib = File.expand_path('../lib', File.dirname( __FILE__))
-if (File.exists?(File.join(lib, 'oddjob.rb')))
+if File.exist?(File.join(lib, 'oddjob.rb'))
   $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 end
 
