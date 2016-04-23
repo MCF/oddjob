@@ -170,11 +170,10 @@ module OddJob
     # +delay+ is the seconds of simulated network delay to wait before
     # responding after an upload request.
     #
-    # +save_directory+ is the the directory location to save uploaded files.
-    # If +save_directory+ is set to nil uploaded files are not save, instead
-    # the entire http request is printed on STDOUT, followed by the name and
-    # contents of each file.  Generally only useful for small and non-binary
-    # files.
+    # +save_directory+ is where uploaded files are saved.  If +save_directory+
+    # is not set, or set to nil, uploaded files are not saved.  Instead the
+    # entire http request is printed on STDOUT, followed by the name and
+    # contents of each file.  Generally only useful for small text files.
     def initialize(server, delay, save_directory, *options)
       @simulated_delay = delay
       @save_directory = save_directory
