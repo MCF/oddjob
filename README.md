@@ -28,7 +28,7 @@ out of the included `bin` directory.
 ## Installation ##
 
 oddjob is available as a ruby gem.  To install it for general command line
-use simply use gem like so:
+use gem install:
 
 ```sh
 gem install oddjob
@@ -58,8 +58,8 @@ Command line usage is:
 oddjob [OPTIONS] [server_root]
 ```
 
-Where the optional server_root argument will be the server's root directory.
-The default server root is the current working directory.
+Where the optional server_root argument will be the served root directory.  The
+default server root is the current working directory.
 
 The default file upload behaviour will print the contents of the HTTP POST
 request, and the contents of any uploaded files, to the server's STDOUT.  It is
@@ -99,8 +99,8 @@ To stop oddjob use the normal interrupt key combination (usually Ctrl-C).
 oddjob
 ```
 
-Serves the files and directories in your current working directory at the
-`http://localhost:4400/` URL.  File upload is available at
+Serves the files and directories in your current working directory at
+`http://localhost:4400/`.  File upload is available at
 `http://localhost:4400/oj_upload`
 
 ```sh
