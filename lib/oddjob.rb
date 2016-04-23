@@ -103,6 +103,7 @@ module OddJob
         "  a {text-decoration:none; color:rgb(248,157,30)}",
         "  a:hover {color:rgb(239,131,0);}",
         "  .header {font-size:0.75em; float:right; margin-bottom: 2.0em;}",
+        "  .fineprint {font-size:0.85em;}",
         "  </style>",
         "</head>",
         "<html><body>",
@@ -252,17 +253,41 @@ module OddJob
     # Returns a string holding the full HTML page with the file upload form.
     def uploader_page
       html = [
-        "<h1>Uploader</h1>",
+        "<h1>Oddjob File Uploader</h1>",
         "<form action='' method='POST' enctype='multipart/form-data'>",
-        "  <p>",
-        "    Select file(s) to upload:",
+        "    <label for='file'>Select one or more files to upload:</label>",
         "    <br><br>",
         "    <input type='file' name='file' multiple='true'>",
         "    <br><br>",
-        "    <input type='submit'>",
-        "  </p>",
+        "    <input type='submit' value='Upload'>",
         "</form>",
+        "<br>",
       ]
+
+      if @save_directory.nil?
+        html += [
+          "<p class=\"fineprint\">",
+          "Currently file uploads will <strong>not</strong> be saved, instead",
+          "their contents will be printed to oddjob's standard output.",
+          "In this configuration it is recommended that you only upload",
+          "text files.",
+          "</p>",
+          "<p class=\"fineprint\">",
+          "To upload any kind of file (binary or text) specify an output",
+          "directory where files will be saved instead.  To see how visit the",
+          "<a href=\"#{INFO_PATH}\">info page</a>.",
+          "</p>",
+        ]
+      else
+        html += [
+          "<p class=\"fineprint\">",
+          "Uploaded files will be saved in the",
+          "<strong>#{File.expand_path(@save_directory)}</strong> directory.",
+          "New files do not overwrite existing ones, instead they are given",
+          "a unique numbered suffix.",
+          "</p>",
+        ]
+      end
 
       page(html, "Uploader")
     end
