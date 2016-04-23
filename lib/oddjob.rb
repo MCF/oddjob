@@ -108,6 +108,7 @@ module OddJob
         "</head>",
         "<html><body>",
         "  <div class=\"header\">",
+        "    <em>v#{VERSION}</em>",
         "    <a href=\"https://github.com/MCF/oddjob\">OddJob on github</a>",
         "  </div>",
         "  <div style=\"clear:both;\"></div>",
